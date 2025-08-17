@@ -461,29 +461,17 @@ static void menuactionpress(void)
 
         switch (option_id)
         {
-#if !defined(MAKEANDPLAY)
         case 0:
-            //Play
-            if (!game.save_exists() && !game.anything_unlocked())
-            {
-                //No saves exist, just start a new game
-                music.playef(Sound_VIRIDIAN);
-                startmode(Start_MAINGAME);
-            }
-            else
-            {
-                //Bring you to the normal playmenu
-                music.playef(Sound_VIRIDIAN);
-                game.createmenu(Menu::play);
-                map.nexttowercolour();
-            }
-            break;
-#endif
-        case 1:
-            //Bring you to the normal playmenu
+            //Play super gravitron
+            game.swnpractice = 0;
             music.playef(Sound_VIRIDIAN);
-            game.editor_disabled = !BUTTONGLYPHS_keyboard_is_available();
-            game.createmenu(Menu::playerworlds);
+            startmode(Start_SECRETLAB);
+            map.nexttowercolour();
+            break;
+        case 1:
+            //Bring you to the practice menu
+            music.playef(Sound_VIRIDIAN);
+            game.createmenu(Menu::practice);
             map.nexttowercolour();
             break;
         case 2:
@@ -493,18 +481,12 @@ static void menuactionpress(void)
             map.nexttowercolour();
             break;
         case 3:
-            //Translator
-            music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::translator_main);
-            map.nexttowercolour();
-            break;
-        case 4:
             //Credits
             music.playef(Sound_VIRIDIAN);
             game.createmenu(Menu::credits);
             map.nexttowercolour();
             break;
-        case 5:
+        case 4:
             music.playef(Sound_VIRIDIAN);
             game.createmenu(Menu::youwannaquit);
             map.nexttowercolour();
@@ -512,174 +494,67 @@ static void menuactionpress(void)
         }
         break;
     }
-    case Menu::levellist:
+    case Menu::practice:
     {
-        const bool nextlastoptions = cl.ListOfMetaData.size() > 8;
-        if(game.currentmenuoption==(int)game.menuoptions.size()-1){
-            //go back to menu
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            map.nexttowercolour();
-        }else if(nextlastoptions && game.currentmenuoption==(int)game.menuoptions.size()-2){
-            //previous page
-            music.playef(Sound_VIRIDIAN);
-            if(game.levelpage==0){
-                game.levelpage=(cl.ListOfMetaData.size()-1)/8;
-            }else{
-                game.levelpage--;
-            }
-            game.createmenu(Menu::levellist, true);
-            game.currentmenuoption=game.menuoptions.size()-2;
-            map.nexttowercolour();
-        }else if(nextlastoptions && game.currentmenuoption==(int)game.menuoptions.size()-3){
-            //next page
-            music.playef(Sound_VIRIDIAN);
-            if((size_t) ((game.levelpage*8)+8) >= cl.ListOfMetaData.size()){
-                game.levelpage=0;
-            }else{
-                game.levelpage++;
-            }
-            game.createmenu(Menu::levellist, true);
-            game.currentmenuoption=game.menuoptions.size()-3;
-            map.nexttowercolour();
-        }else{
-            //Ok, launch the level!
-            //PLAY CUSTOM LEVEL HOOK
-            music.playef(Sound_VIRIDIAN);
-            game.playcustomlevel=(game.levelpage*8)+game.currentmenuoption;
-            game.customleveltitle=cl.ListOfMetaData[game.playcustomlevel].title;
-            game.customlevelfilename=cl.ListOfMetaData[game.playcustomlevel].filename;
+        int option = 10;
+        if (game.swnpage > game.numpatterns)
+        {
+            option -= game.swnpage - game.numpatterns;
+        }
 
-            std::string name = "saves/" + cl.ListOfMetaData[game.playcustomlevel].filename.substr(7) + ".vvv";
-            tinyxml2::XMLDocument doc;
-            if (!FILESYSTEM_loadTiXml2Document(name.c_str(), doc)){
-                startmode(Start_CUSTOM);
-            }else{
-                game.createmenu(Menu::quickloadlevel);
-                map.nexttowercolour();
+        if (game.currentmenuoption < option)
+        {
+            if (game.swnpatternunlock[game.currentmenuoption + game.swnpage-10] == 1)
+            {
+                game.swnpractice = game.swnpatterns[game.currentmenuoption + game.swnpage-10].swncase;
+                game.swnpage = 10;
+                music.playef(Sound_VIRIDIAN);
+                startmode(Start_SECRETLAB);
             }
         }
-        break;
-    }
-    case Menu::quickloadlevel:
-        switch (game.currentmenuoption)
+
+        if (game.currentmenuoption == option)
         {
-        case 0: //continue save
-            music.playef(Sound_VIRIDIAN);
-            startmode(Start_CUSTOM_QUICKSAVE);
-            break;
-        case 1:
-            music.playef(Sound_VIRIDIAN);
-            startmode(Start_CUSTOM);
-            break;
-        case 2:
-            music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::deletequicklevel);
-            map.nexttowercolour();
-            break;
-        default:
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            map.nexttowercolour();
-            break;
-        }
-        break;
-    case Menu::deletequicklevel:
-        switch (game.currentmenuoption)
-        {
-        default:
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            break;
-        case 1:
-            game.customdeletequick(cl.ListOfMetaData[game.playcustomlevel].filename);
-            game.returntomenu(Menu::levellist);
-            game.flashlight = 5;
-            game.screenshake = 15;
-            music.playef(Sound_DESTROY);
-            break;
-        }
-        map.nexttowercolour();
-        break;
-    case Menu::playerworlds:
-        if (game.currentmenuoption == 0)
-        {
-            music.playef(Sound_VIRIDIAN);
-            game.levelpage = 0;
-            cl.getDirectoryData();
-            game.loadcustomlevelstats(); //Should only load a file if it's needed
-            game.createmenu(Menu::levellist);
-            if (FILESYSTEM_levelDirHasError())
+            // next page
+            if (game.swnpage < game.numpatterns)
             {
-                game.createmenu(Menu::warninglevellist);
-            }
-            map.nexttowercolour();
-        }
-        else if (game.currentmenuoption == 1)
-        {
-            // LEVEL EDITOR HOOK
-            if (game.editor_disabled)
-            {
-                music.playef(Sound_CRY);
+                game.swnpage += 10;
             }
             else
             {
-                music.playef(Sound_VIRIDIAN);
-                startmode(Start_EDITOR);
-                ed.filename = "";
+                game.swnpage = 10;
             }
+            game.currentmenuoption = 0;
+            music.playef(Sound_VIRIDIAN);
+            game.returntomenu(Menu::practice);
+            map.nexttowercolour();
         }
-        else if (!game.editor_disabled && game.currentmenuoption == 2)
+        else if (game.currentmenuoption == option+1)
         {
-            //"OPENFOLDERHOOK"
-            if (FILESYSTEM_openDirectoryEnabled()
-                && FILESYSTEM_openDirectory(FILESYSTEM_getUserLevelDirectory()))
+            // previous page
+            if (game.swnpage > 10)
             {
-                music.playef(Sound_VIRIDIAN);
-                SDL_MinimizeWindow(gameScreen.m_window);
+                game.swnpage -= 10;
             }
             else
             {
-                music.playef(Sound_CRY);
+                game.swnpage = ceil(static_cast<double>(game.numpatterns) / 10) * 10;
             }
-        }
-        else if (!game.editor_disabled && game.currentmenuoption == 3)
-        {
+            game.currentmenuoption = 0;
             music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::confirmshowlevelspath);
+            game.returntomenu(Menu::practice);
             map.nexttowercolour();
         }
-        else if (game.currentmenuoption == 4 || (game.editor_disabled && game.currentmenuoption == 2))
+        else if (game.currentmenuoption == option+2)
         {
             // back
+            game.swnpage = 10;
             music.playef(Sound_VIRIDIAN);
             game.returnmenu();
             map.nexttowercolour();
         }
         break;
-    case Menu::confirmshowlevelspath:
-    {
-        int prevmenuoption = game.currentmenuoption; /* returnmenu destroys this */
-        music.playef(Sound_VIRIDIAN);
-        game.returnmenu();
-        map.nexttowercolour();
-        if (prevmenuoption == 1)
-        {
-            game.createmenu(Menu::showlevelspath);
-        }
-        break;
     }
-    case Menu::showlevelspath:
-        music.playef(Sound_VIRIDIAN);
-        game.editor_disabled = !BUTTONGLYPHS_keyboard_is_available();
-        game.returntomenu(Menu::playerworlds);
-        map.nexttowercolour();
-        break;
-    case Menu::errornostart:
-        music.playef(Sound_VIRIDIAN);
-        game.createmenu(Menu::mainmenu);
-        map.nexttowercolour();
-        break;
     case Menu::graphicoptions:
     {
         int offset = 0;
@@ -1051,13 +926,13 @@ static void menuactionpress(void)
         {
             //Clear Data
             music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::cleardatamenu);
+            game.createmenu(Menu::clearswnmoddatamenu);
             map.nexttowercolour();
         }
         else if (game.currentmenuoption == gameplayoptionsoffset + 4)
         {
             music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::clearcustomdatamenu);
+            game.createmenu(Menu::clearswnpracticedatamenu);
             map.nexttowercolour();
         }
         else if (game.currentmenuoption == gameplayoptionsoffset + 5) {
@@ -1914,70 +1789,6 @@ static void menuactionpress(void)
             break;
         }
         break;
-    case Menu::play:
-    {
-        //Do we have the Secret Lab option?
-        int sloffset = game.unlock[Unlock_SECRETLAB] ? 0 : -1;
-        //Do we have a telesave or quicksave?
-        int ngoffset = game.save_exists() ? 0 : -1;
-        if (game.currentmenuoption == 0)
-        {
-            //continue
-            //right, this depends on what saves you've got
-            if (!game.save_exists())
-            {
-                //You have no saves but have something unlocked, or you couldn't have gotten here
-                music.playef(Sound_VIRIDIAN);
-                startmode(Start_MAINGAME);
-            }
-            else if (!game.last_telesave.exists)
-            {
-                //You at least have a quicksave, or you couldn't have gotten here
-                music.playef(Sound_VIRIDIAN);
-                startmode(Start_MAINGAME_QUICKSAVE);
-            }
-            else if (!game.last_quicksave.exists)
-            {
-                //You at least have a telesave, or you couldn't have gotten here
-                music.playef(Sound_VIRIDIAN);
-                startmode(Start_MAINGAME_TELESAVE);
-            }
-            else
-            {
-                //go to a menu!
-                music.playef(Sound_VIRIDIAN);
-                game.loadsummary(); //Prepare save slots to display
-                game.createmenu(Menu::continuemenu);
-            }
-        }
-        else if (game.currentmenuoption == 1 && game.unlock[Unlock_SECRETLAB])
-        {
-            music.playef(Sound_VIRIDIAN);
-            startmode(Start_SECRETLAB);
-        }
-        else if (game.currentmenuoption == sloffset+2)
-        {
-            //play modes
-            music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::playmodes);
-            map.nexttowercolour();
-        }
-        else if (game.currentmenuoption == sloffset+3 && game.save_exists())
-        {
-            //newgame
-            music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::newgamewarning);
-            map.nexttowercolour();
-        }
-        else if (game.currentmenuoption == sloffset+ngoffset+4)
-        {
-            //back
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            map.nexttowercolour();
-        }
-        break;
-    }
     case Menu::newgamewarning:
         switch (game.currentmenuoption)
         {
@@ -2017,40 +1828,37 @@ static void menuactionpress(void)
             break;
         }
         break;
-    case Menu::cleardatamenu:
+    case Menu::clearswnmoddatamenu:
         switch (game.currentmenuoption)
         {
-        case 0:
-            //back
-            music.playef(Sound_VIRIDIAN);
-            break;
-        default:
-            //yep
-            music.playef(Sound_DESTROY);
-            game.deletequick();
-            game.deletetele();
-            game.deletestats();
-            game.deletesettings();
-            game.flashlight = 5;
-            game.screenshake = 15;
-            break;
+            default:
+                music.playef(Sound_VIRIDIAN);
+                break;
+            case 1:
+                game.swnrecord = 0;
+                music.playef(Sound_DESTROY);
+                game.flashlight = 5;
+                game.screenshake = 15;
+                break;
         }
         game.returnmenu();
         map.nexttowercolour();
         break;
-    case Menu::clearcustomdatamenu:
+    case Menu::clearswnpracticedatamenu:
         switch (game.currentmenuoption)
         {
-        default:
-            music.playef(Sound_VIRIDIAN);
-            break;
-        case 1:
-            game.deletecustomlevelstats();
-            FILESYSTEM_deleteLevelSaves();
-            music.playef(Sound_DESTROY);
-            game.flashlight = 5;
-            game.screenshake = 15;
-            break;
+            default:
+                music.playef(Sound_VIRIDIAN);
+                break;
+            case 1:
+                for (int i = 0; i < game.numpatterns; i++)
+                {
+                    game.swnpatternunlock[i] = 0;
+                }
+                music.playef(Sound_DESTROY);
+                game.flashlight = 5;
+                game.screenshake = 15;
+                break;
         }
         game.returnmenu();
         map.nexttowercolour();
@@ -2997,40 +2805,8 @@ void gameinput(void)
         game.mapmenuchange(MAPMODE, true);
         game.gamesaved = false;
         game.gamesavefailed = false;
+        game.currentmenuoption = 0;
         game.menupage = 20; // The Map Page
-    }
-    else if (game.intimetrial && graphics.fademode == FADE_NONE && !game.translator_exploring)
-    {
-        //Quick restart of time trial
-        graphics.fademode = FADE_START_FADEOUT;
-        game.completestop = true;
-        music.fadeout();
-        game.quickrestartkludge = true;
-    }
-    else if (game.intimetrial && !game.translator_exploring)
-    {
-        //Do nothing if we're in a Time Trial but a fade animation is playing
-    }
-    else if (map.custommode && !map.custommodeforreal)
-    {
-        // We're playtesting in the editor so don't do anything
-    }
-    else
-    {
-        //Normal map screen, do transition later
-        game.mapmenuchange(MAPMODE, true);
-        map.cursordelay = 0;
-        map.cursorstate = 0;
-        game.gamesaved = false;
-        game.gamesavefailed = false;
-        if (script.running)
-        {
-            game.menupage = 3; // Only allow saving
-        }
-        else
-        {
-            game.menupage = 0; // The Map Page
-        }
     }
 
     if (!game.mapheld
@@ -3067,43 +2843,7 @@ void mapinput(void)
     game.press_map = false;
     game.press_interact = false;
 
-    if (version2_2 && graphics.fademode == FADE_FULLY_BLACK && graphics.menuoffset == 0)
-    {
-        // Deliberate re-addition of the glitchy gamestate-based fadeout!
-
-        // First of all, detecting a black screen means if the glitchy fadeout
-        // gets interrupted but you're still on a black screen, opening a menu
-        // immediately quits you to the title. This has the side effect that if
-        // you accidentally press Esc during a cutscene when it's black, you'll
-        // immediately be quit and lose all your progress, but that's fair in
-        // glitchrunner mode.
-        // Also have to check graphics.menuoffset so this doesn't run every frame
-
-        // Have to close the menu in order to run gamestates
-        graphics.resumegamemode = true;
-        // Remove half-second delay
-        graphics.menuoffset = 250;
-
-        // Technically this was in <=2.2 as well
-        obj.removeallblocks();
-
-        if (game.menupage >= 20 && game.menupage <= 21)
-        {
-            game.setstate(96);
-            game.setstatedelay(0);
-        }
-        else
-        {
-            // Produces more glitchiness! Necessary for credits warp to work.
-            script.running = false;
-            graphics.textboxes.clear();
-
-            game.setstate(80);
-            game.setstatedelay(0);
-        }
-    }
-
-    if (game.fadetomenu && !version2_2)
+    if (game.fadetomenu)
     {
         if (game.fadetomenudelay > 0)
         {
@@ -3112,6 +2852,7 @@ void mapinput(void)
         else
         {
             game.quittomenu();
+            game.currentmenuoption = 0;
             music.play(Music_PRESENTINGVVVVVV); // should be after game.quittomenu()
             game.fadetomenu = false;
         }
@@ -3345,11 +3086,8 @@ static void mapmenuactionpress(const bool version2_2)
         game.swnmode = false;
         graphics.fademode = FADE_START_FADEOUT;
         music.fadeout();
-        if (!version2_2)
-        {
-            game.fadetolab = true;
-            game.fadetolabdelay = 19;
-        }
+        game.fadetomenu = true;
+        game.fadetomenudelay = 19;
         music.playef(Sound_VIRIDIAN);
         break;
     case 30:

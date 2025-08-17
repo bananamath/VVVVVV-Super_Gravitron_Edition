@@ -2263,7 +2263,7 @@ void Graphics::drawentity(const int i, const int yoff)
 
         // if we're outside the screen, we need to draw indicators
 
-        if (obj.entities[i].xp < -20 && obj.entities[i].vx > 0)
+        if (obj.entities[i].xp < -20 && obj.entities[i].xp > -180 && obj.entities[i].vx > 0)
         {
             if (obj.entities[i].xp < -100)
             {
@@ -2284,7 +2284,7 @@ void Graphics::drawentity(const int i, const int yoff)
             draw_grid_tile(grphx.im_tiles_white, 1167, drawRect.x, drawRect.y, 8, 8, ct);
 
         }
-        else if (obj.entities[i].xp > 340 && obj.entities[i].vx < 0)
+        else if (obj.entities[i].xp > 340 && obj.entities[i].xp < 500 && obj.entities[i].vx < 0)
         {
             if (obj.entities[i].xp > 420)
             {
@@ -3402,7 +3402,6 @@ static void commsrelay_textbox(textboxclass* THIS)
     THIS->wrap(11);
     THIS->resize();
     THIS->xp = 224 - THIS->w;
-    THIS->yp = 32 - THIS->h/2;
 }
 
 void Graphics::textboxcommsrelay(const char* text)

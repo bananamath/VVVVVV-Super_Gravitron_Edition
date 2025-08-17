@@ -48,7 +48,7 @@ public:
 
     void swnenemiescol(int t);
 
-    void gravcreate(int ypos, int dir, int xoff = 0, int yoff = 0);
+    void gravcreate(int ypos, int dir, int xoff = 0, int yoff = 0, int speed = 7);
 
     void generateswnwave(int t);
 

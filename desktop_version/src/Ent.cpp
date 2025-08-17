@@ -20,6 +20,7 @@ void entclass::clear(void)
     life = 0;
     colour = EntityColour_CREW_CYAN;
     para = 0;
+    timer = 0;
     behave = 0;
     animate = 0;
 

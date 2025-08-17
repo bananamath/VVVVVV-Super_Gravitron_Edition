@@ -321,6 +321,69 @@ void Game::init(void)
     swnrank = 0;
     swnmessage = 0;
 
+    int commoncount = 0;
+    int standardcount = 0;
+    int unusualcount = 0;
+    int rarecount = 0;
+    int exoticcount = 0;
+
+    for (int i = 0; i < numpatterns; i++)
+    {
+        std::string tier = swnpatterns[i].rarity;
+
+        if (tier == "common")
+        {
+            swncommonpatterns[commoncount+1] = swnpatterns[i].swncase;
+            commoncount++;
+        }
+        else if (tier == "standard")
+        {
+            swnstandardpatterns[standardcount+1] = swnpatterns[i].swncase;
+            standardcount++;
+        }
+        else if (tier == "unusual")
+        {
+            swnunusualpatterns[unusualcount+1] = swnpatterns[i].swncase;
+            unusualcount++;
+        }
+        else if (tier == "rare")
+        {
+            swnrarepatterns[rarecount+1] = swnpatterns[i].swncase;
+            rarecount++;
+        }
+        else if (tier == "exotic")
+        {
+            swnexoticpatterns[exoticcount+1] = swnpatterns[i].swncase;
+            exoticcount++;
+        }
+    }
+    swncommonpatterns[0] = commoncount;
+    swnstandardpatterns[0] = standardcount;
+    swnunusualpatterns[0] = unusualcount;
+    swnrarepatterns[0] = rarecount;
+    swnexoticpatterns[0] = exoticcount;
+
+    if (commoncount == 0)
+    {
+        common = 0;
+    }
+    if (standardcount == 0)
+    {
+        standard = 0;
+    }
+    if (unusualcount == 0)
+    {
+        unusual = 0;
+    }
+    if (rarecount == 0)
+    {
+        rare = 0;
+    }
+    if (exoticcount == 0)
+    {
+        exotic = 0;
+    }
+
     clearcustomlevelstats();
 
     saveFilePath = FILESYSTEM_getUserSaveDirectory();
@@ -381,7 +444,7 @@ void Game::init(void)
     screenshot_border_timer = 0;
     screenshot_saved_success = false;
 
-#if defined(__ANDROID__) || TARGET_OS_IPHONE
+#if defined(__ANDROID__) || defined(TARGET_OS_IPHONE)
     checkpoint_saving = true;
 #else
     checkpoint_saving = false;
@@ -510,6 +573,21 @@ void Game::deletecustomlevelstats(void)
     }
 
 #define LOAD_ARRAY(ARRAY_NAME) LOAD_ARRAY_RENAME(ARRAY_NAME, ARRAY_NAME)
+
+// This function was written by my friend Alg0rythm!
+std::string encodeXMLtag(std::string &str) {
+    std::stringstream ss;
+    //":" | [A-Z] | "_" | [a-z]
+    for(char c : str) {
+        if(c == ':' || (c >= 'A' && c <= 'Z') || c == '_' || (c >= 'a' && c <= 'z')){
+            ss << c;
+        }
+        else {
+            ss << static_cast<unsigned int>(c);
+        }
+    }
+    return ss.str();
+}
 
 void Game::loadcustomlevelstats(void)
 {
@@ -4618,6 +4696,10 @@ void Game::deletestats(void)
             bestlives[i] = -1;
             bestrank[i] = -1;
         }
+        for (int i = 0; i < numpatterns; i++)
+        {
+            swnpatternunlock[i] = 0;
+        }
         swnrecord = 0;
         swnbestrank = 0;
         bestgamedeaths = -1;
@@ -4726,9 +4808,30 @@ void Game::loadstats(struct ScreenSettings* screen_settings)
             swnbestrank = help.Int(pText);
         }
 
-        if (SDL_strcmp(pKey, "swnrecord") == 0)
+        std::string str = encodeXMLtag(SuperGravitronModName);
+
+        if (SDL_strcmp(pKey, ("swnrecord_" + str).c_str()) == 0)
         {
             swnrecord = help.Int(pText);
+        }
+
+        if (SDL_strcmp(pKey, ("swn_" + str).c_str()) == 0 && pText[0] != '\0')
+        {
+            /* We're loading in 32-bit integers. If we need more than 16 chars,
+            * something is seriously wrong */
+            char buffer[16];
+            size_t start = 0;
+            size_t i = 0;
+
+            while (next_split_s(buffer, sizeof(buffer), &start, pText, ','))
+            {
+                if (i >= SDL_arraysize(swnpatternunlock))
+                {
+                    break;
+                }
+                swnpatternunlock[i] = help.Int(buffer);
+                ++i;
+            }
         }
     }
 
@@ -5074,7 +5177,16 @@ bool Game::savestats(const struct ScreenSettings* screen_settings, bool sync /*=
 
     xml::update_tag(dataNode, "swnbestrank", swnbestrank);
 
-    xml::update_tag(dataNode, "swnrecord", swnrecord);
+    std::string str = encodeXMLtag(SuperGravitronModName);
+
+    xml::update_tag(dataNode, ("swnrecord_" + str).c_str(), swnrecord);
+
+    std::string s_swnpatternunlock;
+    for(size_t i = 0; i < SDL_arraysize(swnpatternunlock); i++ )
+    {
+        s_swnpatternunlock += help.String(swnpatternunlock[i]) + ",";
+    }
+    xml::update_tag(dataNode, ("swn_" + str).c_str(), s_swnpatternunlock.c_str());
 
     serializesettings(dataNode, screen_settings);
 
@@ -5429,13 +5541,18 @@ void Game::startspecial( int t )
 
     switch(t)
     {
-    case 0: //Secret Lab
-        savex = 104;
-        savey = 169;
-        saverx = 118;
-        savery = 106;
+    case 0: //Super Gravitron
+        savex = 148;
+        savey = 100;
+        saverx = 119;
+        savery = 108;
         savegc = 0;
         savedir = 1;
+
+        swnwallwarnings = "";
+        swnhomingtimer = -1;
+        swnfreeze = false;
+        swndelete = false;
         break;
     case 1: //Intermission 1 (any)
         savex = 80;
@@ -6689,31 +6806,35 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
             SDL_assert(0 && "Entering main menu from in-game options!");
             break;
         }
-#if !defined(MAKEANDPLAY)
         option(loc::gettext("play"));
-#endif
-        option(loc::gettext("levels"));
+        option(loc::gettext("practice"));
         option(loc::gettext("options"));
-        if (loc::show_translator_menu)
-        {
-            option(loc::gettext("translator"));
-        }
         option(loc::gettext("credits"));
         option(loc::gettext("quit"));
         menuyoff = -10;
         maxspacing = 15;
         break;
-    case Menu::playerworlds:
-        option(loc::gettext("play a level"));
-        option(loc::gettext("level editor"), !editor_disabled);
-        if (!editor_disabled)
+    case Menu::practice:
+        for (int i = swnpage-10; i < swnpage; i++)
         {
-            option(loc::gettext("open level folder"), FILESYSTEM_openDirectoryEnabled());
-            option(loc::gettext("show level folder path"));
+            if (i < std::size(swnpatterns))
+            {
+                if (swnpatternunlock[i] == 0)
+                {
+                    option(loc::gettext("??????"));
+                }
+                else
+                {
+                    option(loc::gettext(swnpatterns[i].name.c_str()));
+                }
+            }
         }
+
+        option(loc::gettext("next page"));
+        option(loc::gettext("previous page"));
         option(loc::gettext("return"));
-        menuyoff = -40;
-        maxspacing = 15;
+        menuyoff = 40-(menuoptions.size()*10);
+        maxspacing = 5;
         break;
     case Menu::confirmshowlevelspath:
         option(loc::gettext("no, don't show me"));
@@ -6860,8 +6981,8 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         option(loc::gettext("toggle fps"));
         option(loc::gettext("speedrun options"));
         option(loc::gettext("advanced options"));
-        option(loc::gettext("clear main game data"));
-        option(loc::gettext("clear custom level data"));
+        option(loc::gettext("clear mod data"));
+        option(loc::gettext("clear practice data"));
         option(loc::gettext("return"));
         menuyoff = -10;
         maxspacing = 15;
@@ -7130,8 +7251,8 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         option(loc::gettext("ok"));
         menuyoff = 10;
         break;
-    case Menu::cleardatamenu:
-    case Menu::clearcustomdatamenu:
+    case Menu::clearswnmoddatamenu:
+    case Menu::clearswnpracticedatamenu:
         option(loc::gettext("no! don't delete"));
         option(loc::gettext("yes, delete everything"));
         menuyoff = 64;
@@ -7753,7 +7874,7 @@ void Game::quittomenu(void)
         {
             //Returning from editor
             editor_disabled = !BUTTONGLYPHS_keyboard_is_available();
-            returntomenu(Menu::playerworlds);
+            returntomenu(Menu::practice);
         }
     }
     else if (save_exists() || anything_unlocked())

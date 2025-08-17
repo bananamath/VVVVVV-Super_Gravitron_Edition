@@ -39,7 +39,7 @@ namespace Menu
     enum MenuName
     {
         mainmenu,
-        playerworlds,
+        practice,
         confirmshowlevelspath,
         showlevelspath,
         levellist,
@@ -74,8 +74,8 @@ namespace Menu
         translator_maintenance,
         translator_maintenance_sync,
         translator_error_setlangwritedir,
-        cleardatamenu,
-        clearcustomdatamenu,
+        clearswnmoddatamenu,
+        clearswnpracticedatamenu,
         setinvincibility,
         setslowdown,
         unlockmenu,
@@ -416,14 +416,70 @@ public:
     enum SWNMODE swngame;
     int swnstate, swnstate2, swnstate3, swnstate4, swndelay, swndeaths;
     int swntimer, swncolstate, swncoldelay;
-    int  swnrecord, swnbestrank, swnrank, swnmessage;
+    int swnrecord, swnbestrank, swnrank, swnmessage;
+
+    int swnrand;
+
+    struct swnpattern
+    {
+        std::string name;
+        int swncase;
+        std::string rarity;
+    };
+
+
+
+    // ------------------------ EDIT THIS SECTION ------------------------ //
+    
+    // Certain characters may require a backslash (\) before them.
+    std::string SuperGravitronModName = "Super Gravitron Edition";
+    std::string Author = "bananamath";
+    static const int numpatterns = 1;
+    swnpattern swnpatterns[numpatterns] = {
+        //common
+        
+        //standard
+        
+        //unusual
+        
+        //rare
+        
+        //exotic
+        
+    };
+    int common = 34;
+    int standard = 27;
+    int unusual = 20;
+    int rare = 13;
+    int exotic = 6;
+
+    // --------------------------------------------------------- //
+
+
+
+    int swncommonpatterns[numpatterns+1];
+    int swnstandardpatterns[numpatterns+1];
+    int swnunusualpatterns[numpatterns+1];
+    int swnrarepatterns[numpatterns+1];
+    int swnexoticpatterns[numpatterns+1];
+
+    std::string swnpatternname;
+    int swnpatternunlock[numpatterns];
+
+    int swnpage = 10;
+    int swnpractice = 0;
+
+    std::string swnwallwarnings;
+    int swnhomingtimer = -1;
+    bool swnfreeze = false;
+    bool swndelete = false;
 
     //SuperCrewMate Stuff
     bool supercrewmate, scmhurt;
     int scmprogress;
 
     //Accessibility Options
-    bool  colourblindmode;
+    bool colourblindmode;
     bool noflashingmode;
     int slowdown;
     int get_timestep(void);

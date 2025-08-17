@@ -130,15 +130,23 @@ void entityclass::swnenemiescol( int t )
     }
 }
 
-void entityclass::gravcreate( int ypos, int dir, int xoff /*= 0*/, int yoff /*= 0*/ )
+void entityclass::gravcreate( int ypos, int dir, int xoff /*= 0*/, int yoff /*= 0*/, int speed /*= 7*/ )
 {
-    if (dir == 0)
+    if (dir == 0) // Right
     {
-        createentity(-150 - xoff, 58 + (ypos * 20)+yoff, 23, 0, 0);
+        createentity(-150 - xoff, 58 + (ypos * 20) + yoff, 23, 0, speed);
     }
-    else
+    else if (dir == 1) // Left
     {
-        createentity(320+150 + xoff, 58 + (ypos * 20)+yoff, 23, 1, 0);
+        createentity(320 + 150 + xoff, 58 + (ypos * 20) + yoff, 23, 1, speed);
+    }
+    else if (dir == 2) // Wall
+    {
+        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 2, speed);
+    }
+    else if (dir == 3) //Homing
+    {
+        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 3, speed);
     }
 }
 
@@ -329,444 +337,65 @@ void entityclass::generateswnwave( int t )
         else if (t == 1)
         {
             //Game 2, super gravitron
+
+            for (int i = 0; i < game.numpatterns; i++)
+            {
+                if (game.swnpatterns[i].swncase == game.swnstate)
+                {
+                    game.swnpatternname = game.swnpatterns[i].name;
+                    game.swnpatternunlock[i] = 1;
+                    break;
+                }
+            }
+
+            game.swndelete = false;
+
+            for (int i = 0; i < entities.size(); i++)
+            {
+                if (entities[i].type == 23 && entities[i].behave != 3 && entities[i].vx == 0 && (game.swnfreeze ? 0 : 1))
+                {
+                    disableentity(i);
+                }
+            }
+
             switch(game.swnstate)
             {
             case 0:
-                //Choose either simple or filler
                 game.swnstate2 = 0;
                 game.swnstate3 = 0;
                 game.swnstate4 = 0;
 
-                game.swnstate2 = int(xoshiro_rand() * 100);
-                if (game.swnstate2 < 25)
+                game.swnrand = xoshiro_rand() * (game.common + game.standard + game.unusual + game.rare + game.exotic);
+                
+                if (game.swnrand < game.common)
                 {
-                    //simple
-                    game.swnstate = 2;
-                    game.swndelay = 0;
+                    game.swnstate = game.swncommonpatterns[int(xoshiro_rand() * game.swncommonpatterns[0]) + 1];
                 }
-                else
+                else if (game.swnrand < game.common + game.standard)
                 {
-                    //filler
-                    game.swnstate = 4;
-                    game.swndelay = 0;
+                    game.swnstate = game.swnstandardpatterns[int(xoshiro_rand() * game.swnstandardpatterns[0]) + 1];
                 }
-                game.swnstate2 = 0;
-                break;
-            case 1:
-                //complex chain
-                game.swnstate2 = int(xoshiro_rand() * 8);
-                if (game.swnstate2 == 0)
+                else if (game.swnrand < game.common + game.standard + game.unusual)
                 {
-                    game.swnstate = 10;
-                    game.swndelay = 0;
+                    game.swnstate = game.swnunusualpatterns[int(xoshiro_rand() * game.swnunusualpatterns[0]) + 1];
                 }
-                else if (game.swnstate2 == 1)
+                else if (game.swnrand < game.common + game.standard + game.unusual + game.rare)
                 {
-                    game.swnstate = 12;
-                    game.swndelay = 0;
+                    game.swnstate = game.swnrarepatterns[int(xoshiro_rand() * game.swnrarepatterns[0]) + 1];
                 }
-                else if (game.swnstate2 == 2)
+                else if (game.swnrand < game.common + game.standard + game.unusual + game.rare + game.exotic)
                 {
-                    game.swnstate = 14;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 3)
-                {
-                    game.swnstate = 20;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 4)
-                {
-                    game.swnstate = 21;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 5)
-                {
-                    game.swnstate = 22;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 6)
-                {
-                    game.swnstate = 22;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 7)
-                {
-                    game.swnstate = 14;
-                    game.swndelay = 0;
+                    game.swnstate = game.swnexoticpatterns[int(xoshiro_rand() * game.swnexoticpatterns[0]) + 1];
                 }
 
-                game.swnstate2 = 0;
+                if (game.swnpractice != 0)
+                {
+                    game.swnstate = game.swnpractice;
+                }
                 break;
-            case 2:
-                //simple chain
-                game.swnstate2 = int(xoshiro_rand() * 6);
-                if (game.swnstate2 == 0)
-                {
-                    game.swnstate = 23;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 1)
-                {
-                    game.swnstate = 24;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 2)
-                {
-                    game.swnstate = 25;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 3)
-                {
-                    game.swnstate = 26;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 4)
-                {
-                    game.swnstate = 27;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 5)
-                {
-                    game.swnstate = 14;
-                    game.swndelay = 0;
-                }
 
-                game.swnstate2 = 0;
-                break;
-            case 3:
-                //Choose a major action
-                game.swnstate2 = int(xoshiro_rand() * 100);
-                game.swnstate4 = 0;
-                if (game.swnstate2 < 25)
-                {
-                    //complex
-                    game.swnstate = 1;
-                    game.swndelay = 0;
-                }
-                else
-                {
-                    //simple
-                    game.swnstate = 2;
-                    game.swndelay = 0;
-                }
-                break;
-            case 4:
-                //filler chain
-                game.swnstate2 = int(xoshiro_rand() * 6);
-                if (game.swnstate2 == 0)
-                {
-                    game.swnstate = 28;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 1)
-                {
-                    game.swnstate = 29;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 2)
-                {
-                    game.swnstate = 28;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 3)
-                {
-                    game.swnstate = 29;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 4)
-                {
-                    game.swnstate = 30;
-                    game.swndelay = 0;
-                }
-                else if (game.swnstate2 == 5)
-                {
-                    game.swnstate = 31;
-                    game.swndelay = 0;
-                }
+            // ------------------------ PASTE PATTERNS HERE ------------------------ //
 
-                game.swnstate2 = 0;
-                break;
-            case 10:
-                gravcreate(0, 0);
-                gravcreate(1, 0);
-                gravcreate(2, 0);
-                game.swnstate++;
-                game.swndelay = 10; //return to decision state
-                break;
-            case 11:
-                gravcreate(3, 0);
-                gravcreate(4, 0);
-                gravcreate(5, 0);
-                game.swnstate2++;
-                if(game.swnstate2==3)
-                {
-                    game.swnstate = 0;
-                    game.swndelay = 30; //return to decision state
-                }
-                else
-                {
-                    game.swnstate--;
-                    game.swndelay = 10; //return to decision state
-                }
-                break;
-            case 12:
-                gravcreate(0, 1);
-                gravcreate(1, 1);
-                gravcreate(2, 1);
-                game.swnstate++;
-                game.swndelay = 10; //return to decision state
-                break;
-            case 13:
-                gravcreate(3, 1);
-                gravcreate(4, 1);
-                gravcreate(5, 1);
-                game.swnstate2++;
-                if(game.swnstate2==3)
-                {
-                    game.swnstate = 0;
-                    game.swndelay = 30; //return to decision state
-                }
-                else
-                {
-                    game.swnstate--;
-                    game.swndelay = 10; //return to decision state
-                }
-                break;
-            case 14:
-                gravcreate(0, 0, 0);
-                gravcreate(5, 1, 0);
-
-                game.swnstate++;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 15:
-                gravcreate(1, 0);
-                gravcreate(4, 1);
-
-                game.swnstate++;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 16:
-                gravcreate(2, 0);
-                gravcreate(3, 1);
-
-                game.swnstate++;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 17:
-                gravcreate(3, 0);
-                gravcreate(2, 1);
-
-                game.swnstate++;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 18:
-                gravcreate(4, 0);
-                gravcreate(1, 1);
-
-                game.swnstate++;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 19:
-                gravcreate(5, 0);
-                gravcreate(0, 1);
-
-                game.swnstate=0;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 20:
-                game.swnstate4++;
-                if(game.swnstate3==0)
-                {
-                    game.swnstate2++;
-                    if (game.swnstate2 >= 6)
-                    {
-                        game.swnstate3 = 1;
-                        game.swnstate2--;
-                    }
-                }
-                else
-                {
-                    game.swnstate2--;
-                    if (game.swnstate2 < 0)
-                    {
-                        game.swnstate3 = 0;
-                        game.swnstate2++;
-                    }
-                }
-                createentity(-150, 58 + (int(game.swnstate2) * 20), 23, 0, 0);
-                if(game.swnstate4<=6)
-                {
-                    game.swnstate = 20;
-                    game.swndelay = 10; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 0;
-                    game.swndelay = 10; //return to decision state
-                }
-                break;
-            case 21:
-                game.swnstate4++;
-                if(game.swnstate3==0)
-                {
-                    game.swnstate2++;
-                    if (game.swnstate2 >= 6)
-                    {
-                        game.swnstate3 = 1;
-                        game.swnstate2--;
-                    }
-                }
-                else
-                {
-                    game.swnstate2--;
-                    if (game.swnstate2 < 0)
-                    {
-                        game.swnstate3 = 0;
-                        game.swnstate2++;
-                    }
-                }
-                createentity(320+150, 58 + (int(game.swnstate2) * 20), 23, 1, 0);
-                if(game.swnstate4<=6)
-                {
-                    game.swnstate = 21;
-                    game.swndelay = 10; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 0;
-                    game.swndelay = 10; //return to decision state
-                }
-                break;
-            case 22:
-                game.swnstate4++;
-                //left and right compliments
-                game.swnstate2 = int(xoshiro_rand() * 6);
-                createentity(-150, 58 + (game.swnstate2  * 20), 23, 0, 0);
-                createentity(320 + 150, 58 + ((5 - game.swnstate2) * 20), 23, 1, 0);
-                if(game.swnstate4<=12)
-                {
-                    game.swnstate = 22;
-                    game.swndelay = 18; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 0;
-                    game.swndelay = 18; //return to decision state
-                }
-                game.swnstate2 = 0;
-                break;
-            case 23:
-                gravcreate(1, 0);
-                gravcreate(2, 0, 15);
-                gravcreate(2, 0, -15);
-                gravcreate(3, 0, 15);
-                gravcreate(3, 0, -15);
-                gravcreate(4, 0);
-                game.swnstate = 0;
-                game.swndelay = 15; //return to decision state
-                break;
-            case 24:
-                gravcreate(1, 1);
-                gravcreate(2, 1, 15);
-                gravcreate(2, 1, -15);
-                gravcreate(3, 1, 15);
-                gravcreate(3, 1, -15);
-                gravcreate(4, 1);
-                game.swnstate = 0;
-                game.swndelay = 15; //return to decision state
-                break;
-            case 25:
-                gravcreate(0, 0);
-                gravcreate(1, 1,0,10);
-                gravcreate(4, 1,0,-10);
-                gravcreate(5, 0);
-                game.swnstate = 0;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 26:
-                gravcreate(0, 1, 0);
-                gravcreate(1, 1, 10);
-                gravcreate(4, 1, 40);
-                gravcreate(5, 1, 50);
-                game.swnstate = 0;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 27:
-                gravcreate(0, 0, 0);
-                gravcreate(1, 0, 10);
-                gravcreate(4, 0, 40);
-                gravcreate(5, 0, 50);
-                game.swnstate = 0;
-                game.swndelay = 20; //return to decision state
-                break;
-            case 28:
-                game.swnstate4++;
-                game.swnstate2 = int(xoshiro_rand() * 6);
-                createentity(-150, 58 + (game.swnstate2  * 20), 23, 0, 0);
-                if(game.swnstate4<=6)
-                {
-                    game.swnstate = 28;
-                    game.swndelay = 8; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 3;
-                    game.swndelay = 15; //return to decision state
-                }
-                game.swnstate2 = 0;
-                break;
-            case 29:
-                game.swnstate4++;
-                game.swnstate2 = int(xoshiro_rand() * 6);
-                gravcreate(game.swnstate2, 1);
-                if(game.swnstate4<=6)
-                {
-                    game.swnstate = 29;
-                    game.swndelay = 8; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 3;
-                    game.swndelay = 15; //return to decision state
-                }
-                game.swnstate2 = 0;
-                break;
-            case 30:
-                game.swnstate4++;
-                game.swnstate2 = int(xoshiro_rand() * 3);
-                gravcreate(game.swnstate2, 0);
-                gravcreate(5-game.swnstate2, 0);
-                if(game.swnstate4<=2)
-                {
-                    game.swnstate = 30;
-                    game.swndelay = 14; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 3;
-                    game.swndelay = 15; //return to decision state
-                }
-                game.swnstate2 = 0;
-                break;
-            case 31:
-                game.swnstate4++;
-                game.swnstate2 = int(xoshiro_rand() * 3);
-                gravcreate(game.swnstate2, 1);
-                gravcreate(5-game.swnstate2, 1);
-                if(game.swnstate4<=2)
-                {
-                    game.swnstate = 31;
-                    game.swndelay = 14; //return to decision state
-                }
-                else
-                {
-                    game.swnstate = 3;
-                    game.swndelay = 15; //return to decision state
-                }
-                game.swnstate2 = 0;
-                break;
             }
         }
     }
@@ -1770,6 +1399,10 @@ void entityclass::createentity(int xp, int yp, int t, int meta1, int meta2, int 
         entity.h = 16;
         entity.cx = 0;
         entity.cy = 0;
+
+        if (entity.behave == 3) {
+            entity.timer = game.swntimer + game.swnhomingtimer;
+        }
 
         entity.x1 = -2000;
         entity.y1 = -100;
@@ -3269,20 +2902,79 @@ bool entityclass::updateentities( int i )
             switch(entities[i].behave)
             {
             case 0:
+                // Right
                 if (entities[i].state == 0)   //Init
                 {
-                    entities[i].vx = 7;
-                    if (entities[i].xp > 320)
+                    entities[i].vx = entities[i].para * (game.swnfreeze ? 0 : 1);
+                    
+                    if (entities[i].xp > 324 || game.swndelete == true || entities[i].para == -1000)
                     {
                         return disableentity(i);
                     }
                 }
                 break;
+
             case 1:
+                // Left
                 if (entities[i].state == 0)   //Init
                 {
-                    entities[i].vx = -7;
-                    if (entities[i].xp <-20)
+                    entities[i].vx = -entities[i].para * (game.swnfreeze ? 0 : 1);
+
+                    if (entities[i].xp < -20 || game.swndelete == true || entities[i].para == -1000)
+                    {
+                        return disableentity(i);
+                    }
+                }
+                break;
+
+            case 2:
+                // Wall
+                if (entities[i].state == 0)   //Init
+                {
+                    entities[i].vy = -entities[i].para * (game.swnfreeze ? 0 : 1);
+
+                    if (game.swndelete == true || entities[i].para == -1000)
+                    {
+                        return disableentity(i);
+                    }
+                }
+                break;
+
+            case 3:
+                // Homing
+                if (entities[i].state == 0)   //Init
+                {
+                    if (entities[i].xp < entities[getplayer()].xp)
+                    {
+                        if (entities[i].vx != entities[i].para)
+                        {
+                            entities[i].vx++;
+                        }
+                    }
+                    else
+                    {
+                        if (entities[i].vx != -entities[i].para)
+                        {
+                            entities[i].vx--;
+                        }
+                    }
+
+                    if (entities[i].yp < entities[getplayer()].yp)
+                    {
+                        if (entities[i].vy != entities[i].para)
+                        {
+                            entities[i].vy++;
+                        }
+                    }
+                    else
+                    {
+                        if (entities[i].vy != -entities[i].para)
+                        {
+                            entities[i].vy--;
+                        }
+                    }
+
+                    if (entities[i].yp < 48 || entities[i].yp > 168 || game.swndelete == true || entities[i].para == -1000 || entities[i].timer - game.swntimer == 0)
                     {
                         return disableentity(i);
                     }

@@ -3241,6 +3241,12 @@ void scriptclass::hardreset(void)
     game.swnstate4 = 0;
     game.swndelay = 0;
     game.swndeaths = 0;
+    game.swnpage = 10;
+    game.swnpractice = 0;
+    game.swnwallwarnings = "";
+    game.swnhomingtimer = -1;
+    game.swnfreeze = false;
+    game.swndelete = false;
     game.supercrewmate = false;
     game.scmhurt = false;
     game.scmprogress = 0;

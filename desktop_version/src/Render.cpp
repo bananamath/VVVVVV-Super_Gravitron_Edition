@@ -202,15 +202,18 @@ static void menurender(void)
         graphics.draw_sprite((160 - 96) + 3 * 32, temp, 23, tr, tg, tb);
         graphics.draw_sprite((160 - 96) + 4 * 32, temp, 23, tr, tg, tb);
         graphics.draw_sprite((160 - 96) + 5 * 32, temp, 23, tr, tg, tb);
+        font::print(PR_RIGHT, 264, temp+35, game.SuperGravitronModName, tr, tg, tb);
+        font::print(PR_RIGHT, 264, temp+45, "by " + game.Author, tr, tg, tb);
+        font::print(0, 10, 230, "Super Gravitron Mod by bananamath", tr / 2, tg / 2, tb / 2);
 #if defined(MAKEANDPLAY)
         font::print(PR_RIGHT, 264, temp+35, loc::gettext("MAKE AND PLAY EDITION"), tr, tg, tb);
 #endif
-#ifdef INTERIM_VERSION_EXISTS
-        font::print(PR_RIGHT | PR_FONT_8X8, 310, 200, COMMIT_DATE, tr/2, tg/2, tb/2);
-        font::print(PR_RIGHT | PR_FONT_8X8, 310, 210, INTERIM_COMMIT, tr/2, tg/2, tb/2);
-        font::print(PR_RIGHT | PR_FONT_8X8, 310, 220, BRANCH_NAME, tr/2, tg/2, tb/2);
-#endif
-        font::print(PR_RIGHT, 310, 230, RELEASE_VERSION, tr/2, tg/2, tb/2);
+//#ifdef INTERIM_VERSION_EXISTS
+//        font::print(PR_RIGHT | PR_FONT_8X8, 310, 200, COMMIT_DATE, tr/2, tg/2, tb/2);
+//        font::print(PR_RIGHT | PR_FONT_8X8, 310, 210, INTERIM_COMMIT, tr/2, tg/2, tb/2);
+//        font::print(PR_RIGHT | PR_FONT_8X8, 310, 220, BRANCH_NAME, tr/2, tg/2, tb/2);
+//#endif
+//        font::print(PR_RIGHT, 310, 230, RELEASE_VERSION, tr/2, tg/2, tb/2);
 
         const char* left_msg = NULL;
 
@@ -345,12 +348,12 @@ static void menurender(void)
         {
             //Clear Data
             font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Clear Data"), tr, tg, tb);
-            font::print_wrap(PR_CEN, -1, 65, loc::gettext("Delete your main game save data and unlocked play modes."), tr, tg, tb);
+            font::print_wrap(PR_CEN, -1, 65, loc::gettext("Delete your Super Gravitron mod data (best time). This is unique to each mod."), tr, tg, tb);
         }
         else if (game.currentmenuoption == gameplayoptionsoffset + 4)
         {
             font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Clear Data"), tr, tg, tb);
-            font::print_wrap(PR_CEN, -1, 65, loc::gettext("Delete your custom level save data and completion stars."), tr, tg, tb);
+            font::print_wrap(PR_CEN, -1, 65, loc::gettext("Delete your Super Gravitron practice data (unlocked patterns). This is unique to each mod."), tr, tg, tb);
         }
 
         break;
@@ -674,8 +677,8 @@ static void menurender(void)
     case Menu::newgamewarning:
         font::print_wrap(PR_CEN, -1, 100, loc::gettext("Are you sure? This will delete your current saves..."), tr, tg, tb);
         break;
-    case Menu::cleardatamenu:
-    case Menu::clearcustomdatamenu:
+    case Menu::clearswnmoddatamenu:
+    case Menu::clearswnpracticedatamenu:
         font::print_wrap(PR_CEN, -1, 100, loc::gettext("Are you sure you want to delete all your saved data?"), tr, tg, tb);
         break;
     case Menu::deletequicklevel:
@@ -1868,7 +1871,7 @@ static void menurender(void)
 
         font::print_wrap(PR_CEN, -1, 125, loc::gettext("You have unlocked the intermission levels."), tr, tg, tb);
         break;
-    case Menu::playerworlds:
+    case Menu::practice:
         if (game.editor_disabled)
         {
             if (game.currentmenuoption == 1)
@@ -1885,7 +1888,7 @@ static void menurender(void)
         }
         else
         {
-            font::print_wrap(PR_CEN, -1, 180, loc::gettext("To install new player levels, copy the .vvvvvv files to the levels folder."), tr, tg, tb);
+            //font::print_wrap(PR_CEN, -1, 180, loc::gettext("To install new player levels, copy the .vvvvvv files to the levels folder."), tr, tg, tb);
         }
         break;
     case Menu::confirmshowlevelspath:
@@ -2570,6 +2573,69 @@ void gamerender(void)
         }
         else if (game.swngame == SWN_SUPERGRAVITRON)
         {
+            // Walls
+            if (game.swnwallwarnings != "")
+            {
+                int count = 0;
+                std::string warning_x = "";
+                std::string warning_y = "";
+
+                for (int i = 0; i < game.swnwallwarnings.length(); i++)
+                {
+                    if (game.swnwallwarnings[i] != ',')
+                    {
+                        if (count % 2 == 0)
+                        {
+                            warning_x += game.swnwallwarnings[i];
+                        }
+                        else
+                        {
+                            warning_y += game.swnwallwarnings[i];
+                        }
+                    }
+                    else
+                    {
+                        count++;
+
+                        if (count % 2 == 0)
+                        {
+                            graphics.draw_rect(atoi(warning_x.c_str()), atoi(warning_y.c_str()), 16, 16, graphics.col_crewred);
+                            graphics.draw_rect(atoi(warning_x.c_str()) + 7, atoi(warning_y.c_str()) + 2, 2, 8, graphics.col_crewred);
+                            graphics.draw_rect(atoi(warning_x.c_str()) + 7, atoi(warning_y.c_str()) + 12, 2, 2, graphics.col_crewred);
+
+                            warning_x = "";
+                            warning_y = "";
+                        }
+                    }
+                }
+            }
+
+            // Homing
+            for (int i = 0; i < obj.entities.size(); i++)
+            {
+                if (obj.entities[i].type == 23 && obj.entities[i].behave == 3)
+                {
+                    if (obj.entities[i].timer - game.swntimer > 0)
+                    {
+                        if (obj.entities[i].timer - game.swntimer <= 30)
+                        {
+                            graphics.draw_rect(obj.entities[i].xp + 7, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                        }
+                        else if (obj.entities[i].timer - game.swntimer <= 60)
+                        {
+                            graphics.draw_rect(obj.entities[i].xp + 5, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                            graphics.draw_rect(obj.entities[i].xp + 9, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                        }
+                        else if (obj.entities[i].timer - game.swntimer <= 90)
+                        {
+                            graphics.draw_rect(obj.entities[i].xp + 3, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                            graphics.draw_rect(obj.entities[i].xp + 7, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                            graphics.draw_rect(obj.entities[i].xp + 11, obj.entities[i].yp - 4, 2, 2, graphics.col_crewyellow);
+                        }
+                    }
+                }
+            }
+
             if (game.swnmessage == 0)
             {
                 std::string tempstring = help.timestring(game.swntimer);
@@ -2579,6 +2645,7 @@ void gamerender(void)
                 font::print(PR_BOR | PR_RIGHT, 320-8, 10, loc::gettext("Best Time"), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
                 font::print(PR_2X | PR_BOR | PR_FONT_8X8 | PR_RIGHT, 300, 24, tempstring, 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
 
+                /*
                 switch(game.swnbestrank)
                 {
                 case 0:
@@ -2603,6 +2670,9 @@ void gamerender(void)
                     font::print_wrap(PR_CEN, -1, 204, loc::gettext("All Trophies collected!"), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
                     break;
                 }
+                */
+
+                font::print_wrap(PR_CEN, -1, 204, loc::gettext(game.swnpatternname.c_str()), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
             }
             else if (game.swnmessage == 1)
             {
@@ -2615,8 +2685,10 @@ void gamerender(void)
                     font::print(PR_BOR | PR_RIGHT, 320-8, 10, loc::gettext("Best Time"), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
                     font::print(PR_2X | PR_BOR | PR_FONT_8X8 | PR_RIGHT, 300, 24, tempstring, 128 - (help.glow), 220 - (help.glow), 128 - (help.glow / 2));
 
-                    font::print(PR_2X | PR_BOR | PR_CEN, -1, 200, loc::gettext("New Record!"), 128 - (help.glow), 220 - (help.glow), 128 - (help.glow / 2));
+                    //font::print(PR_2X | PR_BOR | PR_CEN, -1, 200, loc::gettext("New Record!"), 128 - (help.glow), 220 - (help.glow), 128 - (help.glow / 2));
                 }
+
+                font::print_wrap(PR_CEN, -1, 204, loc::gettext(game.swnpatternname.c_str()), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
             }
             else if (game.swnmessage >= 2)
             {
@@ -2629,10 +2701,12 @@ void gamerender(void)
                 font::print(PR_BOR | PR_RIGHT, 320-8, 10, loc::gettext("Best Time"), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
                 font::print(PR_2X | PR_BOR | PR_FONT_8X8 | PR_RIGHT, 300, 24, tempstring, 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
 
+                /*
                 if (int(game.swnmessage / 5) % 2 == 1)
                 {
                     font::print(PR_2X | PR_BOR | PR_CEN, -1, 200, loc::gettext("New Trophy!"), 220 - (help.glow), 128 - (help.glow), 128 - (help.glow / 2));
                 }
+                */
             }
 
             char buffer[SCREEN_WIDTH_CHARS + 1];
@@ -3103,6 +3177,7 @@ void maprender(void)
                 font::print(PR_CEN, -1, 124, loc::gettext("Best Time"), 196, 196, 255 - help.glow);
                 font::print(PR_2X | PR_CEN | PR_CJK_HIGH, -1, 102, tempstring, 196, 196, 255 - help.glow);
 
+                /*
                 switch(game.swnbestrank)
                 {
                 case 0:
@@ -3127,6 +3202,9 @@ void maprender(void)
                     font::print_wrap(PR_CEN, -1, 40, loc::gettext("All Trophies collected!"), 196, 196, 255 - help.glow);
                     break;
                 }
+                */
+
+                font::print_wrap(PR_CEN, -1, 204, loc::gettext(game.swnpatternname.c_str()), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
             }
             else
             {
@@ -3136,6 +3214,7 @@ void maprender(void)
                 font::print(PR_CEN, -1, 90, loc::gettext("Best Time"), 196, 196, 255 - help.glow);
                 font::print(PR_2X | PR_CEN | PR_CJK_LOW, -1, 104, tempstring, 196, 196, 255 - help.glow);
 
+                /*
                 switch(game.swnbestrank)
                 {
                 case 0:
@@ -3160,6 +3239,9 @@ void maprender(void)
                     font::print_wrap(PR_CEN, -1, 174, loc::gettext("All Trophies collected!"), 196, 196, 255 - help.glow);
                     break;
                 }
+                */
+
+                font::print_wrap(PR_CEN, -1, 204, loc::gettext(game.swnpatternname.c_str()), 220 - (help.glow), 220 - (help.glow), 255 - (help.glow / 2));
             }
         }
         else if (obj.flags[67] && !map.custommode)
@@ -3489,13 +3571,13 @@ void maprender(void)
 
         if (graphics.flipmode)
         {
-            font::print_wrap(PR_CEN, -1, 88, loc::gettext("Do you want to return to the secret laboratory?"), 196, 196, 255 - help.glow, 12);
+            font::print_wrap(PR_CEN, -1, 88, loc::gettext("Do you want to return to the main menu?"), 196, 196, 255 - help.glow, 12);
             font::print(PR_RTL_XFLIP, 80-selection_offset, 142, loc::gettext("[ NO, KEEP PLAYING ]"), 196, 196, 255 - help.glow);
             font::print(PR_RTL_XFLIP, 80 + 32, 130, loc::gettext("yes, return"),  96, 96, 96);
         }
         else
         {
-            font::print_wrap(PR_CEN, -1, 76, loc::gettext("Do you want to return to the secret laboratory?"), 196, 196, 255 - help.glow, 12);
+            font::print_wrap(PR_CEN, -1, 76, loc::gettext("Do you want to return to the main menu?"), 196, 196, 255 - help.glow, 12);
             font::print(PR_RTL_XFLIP, 80-selection_offset, 130, loc::gettext("[ NO, KEEP PLAYING ]"), 196, 196, 255 - help.glow);
             font::print(PR_RTL_XFLIP, 80 + 32, 142, loc::gettext("yes, return"),  96, 96, 96);
         }
@@ -3506,13 +3588,13 @@ void maprender(void)
 
         if (graphics.flipmode)
         {
-            font::print_wrap(PR_CEN, -1, 88, loc::gettext("Do you want to return to the secret laboratory?"), 196, 196, 255 - help.glow, 12);
+            font::print_wrap(PR_CEN, -1, 88, loc::gettext("Do you want to return to the main menu?"), 196, 196, 255 - help.glow, 12);
             font::print(PR_RTL_XFLIP, 80, 142, loc::gettext("no, keep playing"), 96, 96, 96);
             font::print(PR_RTL_XFLIP, 80 + 32-selection_offset, 130, loc::gettext("[ YES, RETURN ]"),  196, 196, 255 - help.glow);
         }
         else
         {
-            font::print_wrap(PR_CEN, -1, 76, loc::gettext("Do you want to return to the secret laboratory?"), 196, 196, 255 - help.glow, 12);
+            font::print_wrap(PR_CEN, -1, 76, loc::gettext("Do you want to return to the main menu?"), 196, 196, 255 - help.glow, 12);
             font::print(PR_RTL_XFLIP, 80, 130, loc::gettext("no, keep playing"), 96, 96, 96);
             font::print(PR_RTL_XFLIP, 80 + 32-selection_offset, 142, loc::gettext("[ YES, RETURN ]"),  196, 196, 255 - help.glow);
         }
