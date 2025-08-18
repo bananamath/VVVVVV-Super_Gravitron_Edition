@@ -444,14 +444,8 @@ void gamelogic(void)
                 game.swnstate3 = 0;
                 game.swnstate4 = 0;
                 game.swndelay = 0;
-                game.swnpage = 10;
-                game.swnpractice = 0;
-                game.swnwallwarnings = "";
-                game.swnhomingtimer = -1;
-                game.swnfreeze = false;
-                game.swndelete = false;
 #ifndef MAKEANDPLAY
-                if (game.swntimer >= game.swnrecord && game.swnpractice == 0 && !map.custommode)
+                if (game.swntimer > game.swnrecord && game.swnpractice == 0 && !map.custommode)
                 {
                     game.swnrecord = game.swntimer;
                     if (game.swnmessage == 0)
@@ -662,12 +656,6 @@ void gamelogic(void)
                     game.swntimer = 0;
                     game.swncolstate = 3;
                     game.swncoldelay = 30;
-                    game.swnpage = 10;
-                    game.swnpractice = 0;
-                    game.swnwallwarnings = "";
-                    game.swnhomingtimer = -1;
-                    game.swnfreeze = false;
-                    game.swndelete = false;
                 }
                 break;
             case SWN_FINISH_GRAVITRON_STEP_2:    //extra kludge if player dies after game a ends
