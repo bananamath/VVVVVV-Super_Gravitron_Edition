@@ -309,6 +309,12 @@ void Game::init(void)
     swnstate2 = 0;
     swnstate3 = 0;
     swnstate4 = 0;
+    swnstate5 = 0;
+    swnstate6 = 0;
+    swnstate7 = 0;
+    swnstate8 = 0;
+    swnstate9 = 0;
+    swnstate10 = 0;
     swndelay = 0;
     swndeaths = 0;
     supercrewmate = false;
@@ -5553,22 +5559,6 @@ void Game::startspecial( int t )
         swnhomingtimer = -1;
         swnfreeze = false;
         swndelete = false;
-        break;
-    case 1: //Intermission 1 (any)
-        savex = 80;
-        savey = 57;
-        saverx = 41;
-        savery = 56;
-        savegc = 0;
-        savedir = 0;
-        break;
-    default:
-        savex = 232;
-        savey = 113;
-        saverx = 104;
-        savery = 110;
-        savegc = 0;
-        savedir = 1; //Worldmap Start
         break;
     }
 

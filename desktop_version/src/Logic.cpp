@@ -443,8 +443,14 @@ void gamelogic(void)
                 game.swnstate2 = 0;
                 game.swnstate3 = 0;
                 game.swnstate4 = 0;
+                game.swnstate5 = 0;
+                game.swnstate6 = 0;
+                game.swnstate7 = 0;
+                game.swnstate8 = 0;
+                game.swnstate9 = 0;
+                game.swnstate10 = 0;
                 game.swndelay = 0;
-#ifndef MAKEANDPLAY
+
                 if (game.swntimer > game.swnrecord && game.swnpractice == 0 && !map.custommode)
                 {
                     game.swnrecord = game.swntimer;
@@ -455,7 +461,6 @@ void gamelogic(void)
                     }
                     game.swnmessage = 1;
                 }
-#endif
             }
         }
 
