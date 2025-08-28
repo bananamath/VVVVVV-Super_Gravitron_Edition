@@ -5491,6 +5491,9 @@ void Game::deathsequence(void)
     }
     if (deathseq == 30)
     {
+        swnwallwarnings = "";
+        swnfreeze = false;
+
         if (nodeathmode)
         {
             music.fadeout();
@@ -5556,9 +5559,7 @@ void Game::startspecial( int t )
         savedir = 1;
 
         swnwallwarnings = "";
-        swnhomingtimer = -1;
         swnfreeze = false;
-        swndelete = false;
         break;
     }
 
