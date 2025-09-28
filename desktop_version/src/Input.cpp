@@ -444,17 +444,12 @@ static void menuactionpress(void)
             option_id = id; \
         } \
         option_seq++;
-#if !defined(MAKEANDPLAY)
+
         OPTION_ID(0) /* play */
-#endif
         OPTION_ID(1) /* levels */
         OPTION_ID(2) /* options */
-        if (loc::show_translator_menu)
-        {
-            OPTION_ID(3) /* translator */
-        }
-        OPTION_ID(4) /* credits */
-        OPTION_ID(5) /* quit */
+        OPTION_ID(3) /* credits */
+        OPTION_ID(4) /* quit */
 
 #undef OPTION_ID
 
@@ -487,6 +482,7 @@ static void menuactionpress(void)
             map.nexttowercolour();
             break;
         case 4:
+            //Quit
             music.playef(Sound_VIRIDIAN);
             game.createmenu(Menu::youwannaquit);
             map.nexttowercolour();
@@ -789,19 +785,18 @@ static void menuactionpress(void)
         break;
     case Menu::accessibility:
     {
-        int accessibilityoffset = 0;
-#if !defined(MAKEANDPLAY)
-        accessibilityoffset = 1;
-        if (game.currentmenuoption == 0) {
-            //unlock play options
+        int accessibilityoffset = 1;
+
+        if (game.currentmenuoption == 0)
+        {
+            //unlock patterns
             music.playef(Sound_VIRIDIAN);
             game.createmenu(Menu::unlockmenu);
             map.nexttowercolour();
         }
-#endif
-        if (game.currentmenuoption == accessibilityoffset + 0) {
+        else if (game.currentmenuoption == accessibilityoffset + 0) {
             //invincibility
-            if (!game.ingame_titlemode || !game.incompetitive())
+            if (!game.ingame_titlemode || !game.incompetitive() || game.swnpractice != 0)
             {
                 if (!map.invincibility)
                 {
@@ -823,7 +818,7 @@ static void menuactionpress(void)
         }
         else if (game.currentmenuoption == accessibilityoffset + 1) {
             //change game speed
-            if (!game.ingame_titlemode || !game.incompetitive())
+            if (!game.ingame_titlemode || !game.incompetitive() || game.swnpractice != 0)
             {
                 game.createmenu(Menu::setslowdown);
                 map.nexttowercolour();
@@ -1404,59 +1399,21 @@ static void menuactionpress(void)
     case Menu::unlockmenu:
         switch (game.currentmenuoption)
         {
-        case 0:
-            //unlock time trials separately...
-            music.playef(Sound_VIRIDIAN);
-            game.createmenu(Menu::unlockmenutrials);
-            map.nexttowercolour();
-            break;
-        case 1:
-            //unlock intermissions
-            music.playef(Sound_VIRIDIAN);
-            game.unlock[Unlock_INTERMISSION_REPLAYS] = true;
-            game.unlocknotify[Unlock_INTERMISSION_REPLAYS] = true;
-            game.unlock[Unlock_INTERMISSION1_COMPLETE] = true;
-            game.unlock[Unlock_INTERMISSION2_COMPLETE] = true;
-            game.createmenu(Menu::unlockmenu, true);
-            game.savestatsandsettings_menu();
-            break;
-        case 2:
-            //unlock no death mode
-            music.playef(Sound_VIRIDIAN);
-            game.unlock[Unlock_NODEATHMODE] = true;
-            game.unlocknotify[Unlock_NODEATHMODE] = true;
-            game.createmenu(Menu::unlockmenu, true);
-            game.savestatsandsettings_menu();
-            break;
-        case 3:
-            //unlock flip mode
-            music.playef(Sound_VIRIDIAN);
-            game.unlock[Unlock_FLIPMODE] = true;
-            game.unlocknotify[Unlock_FLIPMODE] = true;
-            game.createmenu(Menu::unlockmenu, true);
-            game.savestatsandsettings_menu();
-            break;
-        case 4:
-            //unlock jukebox
-            music.playef(Sound_VIRIDIAN);
-            game.stat_trinkets = 20;
-            game.createmenu(Menu::unlockmenu, true);
-            game.savestatsandsettings_menu();
-            break;
-        case 5:
-            //unlock secret lab
-            music.playef(Sound_VIRIDIAN);
-            game.unlock[Unlock_SECRETLAB] = true;
-            game.unlocknotify[Unlock_SECRETLAB] = true;
-            game.createmenu(Menu::unlockmenu, true);
-            game.savestatsandsettings_menu();
-            break;
-        default:
-            //back
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            map.nexttowercolour();
-            break;
+            case 0:
+                //back
+                music.playef(Sound_VIRIDIAN);
+                game.returnmenu();
+                map.nexttowercolour();
+                break;
+            default:
+                for (int i = 0; i < game.numpatterns; i++)
+                {
+                    game.swnpatternunlock[i] = 1;
+                }
+                music.playef(Sound_VIRIDIAN);
+                game.returnmenu();
+                map.nexttowercolour();
+                break;
         }
         break;
     case Menu::credits:

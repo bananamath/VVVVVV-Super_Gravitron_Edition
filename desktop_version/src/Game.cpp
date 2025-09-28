@@ -1430,10 +1430,8 @@ void Game::updatestate(void)
             break;
 
         case 9:
-            if (!map.custommode && nocompetitive())
+            if (!map.custommode && nocompetitive() && swnpractice == 0)
             {
-                returntolab();
-
                 startscript = true;
                 newscript = "disableaccessibility";
 
@@ -5492,7 +5490,7 @@ void Game::deathsequence(void)
     if (deathseq == 30)
     {
         swnwallwarnings = "";
-        swnfreeze = false;
+        swnranddelay = true;
 
         if (nodeathmode)
         {
@@ -5552,14 +5550,14 @@ void Game::startspecial( int t )
     {
     case 0: //Super Gravitron
         savex = 148;
-        savey = 100;
+        savey = 100; //31 top limit but makes double bounce sound
         saverx = 119;
         savery = 108;
         savegc = 0;
         savedir = 1;
 
         swnwallwarnings = "";
-        swnfreeze = false;
+        swnranddelay = true;
         break;
     }
 
@@ -7105,11 +7103,9 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         maxspacing = 15;
         break;
     case Menu::accessibility:
-#if !defined(MAKEANDPLAY)
-        option(loc::gettext("unlock play modes"));
-#endif
-        option(loc::gettext("invincibility"), !ingame_titlemode || !incompetitive());
-        option(loc::gettext("slowdown"), !ingame_titlemode || !incompetitive());
+        option(loc::gettext("unlock patterns"));
+        option(loc::gettext("invincibility"), !ingame_titlemode || !incompetitive() || swnpractice != 0);
+        option(loc::gettext("slowdown"), !ingame_titlemode || !incompetitive() || swnpractice != 0);
         option(loc::gettext("animated backgrounds"));
         option(loc::gettext("screen effects"));
         option(loc::gettext("text outline"));
@@ -7261,14 +7257,9 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         menuyoff = 16;
         break;
     case Menu::unlockmenu:
-        option(loc::gettext("unlock time trials"));
-        option(loc::gettext("unlock intermissions"), !unlock[Unlock_INTERMISSION_REPLAYS]);
-        option(loc::gettext("unlock no death mode"), !unlock[Unlock_NODEATHMODE]);
-        option(loc::gettext("unlock flip mode"), !unlock[Unlock_FLIPMODE]);
-        option(loc::gettext("unlock ship jukebox"), (stat_trinkets<20));
-        option(loc::gettext("unlock secret lab"), !unlock[Unlock_SECRETLAB]);
-        option(loc::gettext("return"));
-        menuyoff = -20;
+        option(loc::gettext("no, return to options"));
+        option(loc::gettext("yes, unlock"));
+        menuyoff = 64;
         break;
     case Menu::credits:
         option(loc::gettext("next page"));

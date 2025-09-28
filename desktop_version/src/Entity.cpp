@@ -2,6 +2,7 @@
 #include "Entity.h"
 
 #include <SDL.h>
+#include <stdarg.h>
 
 #include "CustomLevels.h"
 #include "Font.h"
@@ -130,30 +131,221 @@ void entityclass::swnenemiescol( int t )
     }
 }
 
-void entityclass::gravcreate( int ypos, int dir, int xoff /*= 0*/, int yoff /*= 0*/, int speed /*= 7*/ )
+void entityclass::gravcreate(int ypos, int dir, int xoff /*= 0*/, int yoff /*= 0*/, int speed /*= 7*/, int id /*= 0*/)
 {
     if (dir == 0) // Right
     {
-        createentity(-150 - xoff, 58 + (ypos * 20) + yoff, 23, 0, speed);
+        createentity(-150 - xoff, 58 + (ypos * 20) + yoff, 23, 0, speed, id);
     }
     else if (dir == 1) // Left
     {
-        createentity(320 + 150 + xoff, 58 + (ypos * 20) + yoff, 23, 1, speed);
+        createentity(320 + 150 + xoff, 58 + (ypos * 20) + yoff, 23, 1, speed, id);
     }
     else if (dir == 2) // Wall
     {
-        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 2, speed);
+        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 2, speed, id);
     }
     else if (dir == 3) //Homing
     {
-        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 3, speed);
+        createentity(0 + xoff, 58 + (ypos * 20) + yoff, 23, 3, speed, id);
+    }
+}
+
+void entityclass::swnfreeze()
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].freeze = true;
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swnfreeze(int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].freeze = true;
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnfreeze(rest...);
+    }
+}
+
+void entityclass::swnunfreeze()
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].freeze = false;
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swnunfreeze(int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].freeze = false;
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnunfreeze(rest...);
+    }
+}
+
+void entityclass::swnreverse()
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].reverse = true;
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swnreverse(int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].reverse = true;
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnreverse(rest...);
+    }
+}
+
+void entityclass::swnunreverse()
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].reverse = false;
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swnunreverse(int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].reverse = false;
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnunreverse(rest...);
+    }
+}
+
+void entityclass::swndelete()
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            disableentity(i);
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swndelete(int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            disableentity(i);
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swndelete(rest...);
+    }
+}
+
+void entityclass::swnspeedchange(int speed)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].para = speed;
+        }
+    }
+}
+template <typename... Rest>
+void entityclass::swnspeedchange(int speed, int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].para = speed;
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnspeedchange(speed, rest...);
+    }
+}
+
+// -20 moves up one row, 20 moves down one row
+void entityclass::swnmove(int amount)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23)
+        {
+            entities[i].yp = std::max(48, std::min(entities[i].yp + amount, 168));
+        }
+    }
+}
+// -20 moves up one row, 20 moves down one row
+template <typename... Rest>
+void entityclass::swnmove(int amount, int id, Rest... rest)
+{
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i].type == 23 && entities[i].id == id)
+        {
+            entities[i].yp = std::max(48, std::min(entities[i].yp + amount, 168));
+        }
+    }
+
+    if (sizeof...(rest) != 0)
+    {
+        swnmove(amount, rest...);
     }
 }
 
 void entityclass::generateswnwave( int t )
 {
     //generate a wave for the SWN game
-    if(game.swndelay<=0)
+    if (game.swndelay <= 0)
     {
         if (t == 0)   //game 0, survive for 30 seconds
         {
@@ -348,53 +540,879 @@ void entityclass::generateswnwave( int t )
                 }
             }
 
-            game.swndelete = false;
-
-            for (int i = 0; i < entities.size(); i++)
+            switch (game.swnstate)
             {
-                if (entities[i].type == 23 && entities[i].behave != 3 && entities[i].vx == 0 && (game.swnfreeze ? 0 : 1))
-                {
-                    disableentity(i);
-                }
-            }
+                case 0: { 
+                    game.swnstate2 = 0;
+                    game.swnstate3 = 0;
+                    game.swnstate4 = 0;
+                    game.swnstate5 = 0;
+                    game.swnstate6 = 0;
+                    game.swnstate7 = 0;
+                    game.swnstate8 = 0;
+                    game.swnstate9 = 0;
+                    game.swnstate10 = 0;
 
-            switch(game.swnstate)
-            {
-            case 0:
-                game.swnstate2 = 0;
-                game.swnstate3 = 0;
-                game.swnstate4 = 0;
+                    game.swnrand = xoshiro_rand() * (game.common + game.standard + game.unusual + game.rare + game.exotic);
 
-                game.swnrand = xoshiro_rand() * (game.common + game.standard + game.unusual + game.rare + game.exotic);
+                    if (game.swnrand < game.common)
+                    {
+                        game.swnstate = game.swncommonpatterns[int(xoshiro_rand() * game.swncommonpatterns[0]) + 1];
+                    }
+                    else if (game.swnrand < game.common + game.standard)
+                    {
+                        game.swnstate = game.swnstandardpatterns[int(xoshiro_rand() * game.swnstandardpatterns[0]) + 1];
+                    }
+                    else if (game.swnrand < game.common + game.standard + game.unusual)
+                    {
+                        game.swnstate = game.swnunusualpatterns[int(xoshiro_rand() * game.swnunusualpatterns[0]) + 1];
+                    }
+                    else if (game.swnrand < game.common + game.standard + game.unusual + game.rare)
+                    {
+                        game.swnstate = game.swnrarepatterns[int(xoshiro_rand() * game.swnrarepatterns[0]) + 1];
+                    }
+                    else if (game.swnrand < game.common + game.standard + game.unusual + game.rare + game.exotic)
+                    {
+                        game.swnstate = game.swnexoticpatterns[int(xoshiro_rand() * game.swnexoticpatterns[0]) + 1];
+                    }
+
+                    if (game.swnpractice != 0)
+                    {
+                        game.swnstate = game.swnpractice;
+
+                        if (game.swnranddelay)
+                        {
+                            game.swndelay = int(xoshiro_rand() * 31);
+                            game.swnranddelay = false;
+                        }
+                    }
+
+                    game.swnbidirectional = int(xoshiro_rand() * 2);
+                } break;
+
+                // ------------------------ PASTE PATTERNS HERE ------------------------ //
+
+                case 100: {     
+                    // ^v^ //
+                    // standard //
+
+                    game.swnbidirectional ? gravcreate(5, 0, 15, 0, 7, 1) : gravcreate(5, 1, 0, 0, 7, 1);
+                    game.swnbidirectional ? gravcreate(4, 0, 35, 0, 7, 2) : gravcreate(4, 1, 20, 0, 7, 2);
+                    game.swnbidirectional ? gravcreate(3, 0, 55, 0, 7, 3) : gravcreate(3, 1, 40, 0, 7, 3);
+                    game.swnbidirectional ? gravcreate(3, 0, 95, 0, 7, 4) : gravcreate(3, 1, 80, 0, 7, 4);
+                    game.swnbidirectional ? gravcreate(2, 0, 75, 0, 7, 5) : gravcreate(2, 1, 60, 0, 7, 5);
+                    game.swnbidirectional ? gravcreate(4, 0, 115, 0, 7, 6) : gravcreate(4, 1, 100, 0, 7, 6);
+                    game.swnbidirectional ? gravcreate(5, 0, 135, 0, 7, 7) : gravcreate(5, 1, 120, 0, 7, 7);
+                    game.swnbidirectional ? gravcreate(0, 0, 115, 0, 7, 8) : gravcreate(0, 1, 100, 0, 7, 8);
+                    game.swnbidirectional ? gravcreate(1, 0, 135, 0, 7, 9) : gravcreate(1, 1, 120, 0, 7, 9);
+                    game.swnbidirectional ? gravcreate(2, 0, 155, 0, 7, 10) : gravcreate(2, 1, 140, 0, 7, 10);
+                    game.swnbidirectional ? gravcreate(3, 0, 175, 0, 7, 11) : gravcreate(3, 1, 160, 0, 7, 11);
+                    game.swnbidirectional ? gravcreate(2, 0, 195, 0, 7, 12) : gravcreate(2, 1, 180, 0, 7, 12);
+                    game.swnbidirectional ? gravcreate(1, 0, 215, 0, 7, 13) : gravcreate(1, 1, 200, 0, 7, 13);
+                    game.swnbidirectional ? gravcreate(0, 0, 235, 0, 7, 14) : gravcreate(0, 1, 220, 0, 7, 14);
+                    game.swnbidirectional ? gravcreate(5, 0, 215, 0, 7, 15) : gravcreate(5, 1, 200, 0, 7, 15);
+                    game.swnbidirectional ? gravcreate(4, 0, 235, 0, 7, 16) : gravcreate(4, 1, 220, 0, 7, 16);
+                    game.swnbidirectional ? gravcreate(3, 0, 255, 0, 7, 17) : gravcreate(3, 1, 240, 0, 7, 17);
+                    game.swnbidirectional ? gravcreate(2, 0, 275, 0, 7, 18) : gravcreate(2, 1, 260, 0, 7, 18);
+                    game.swnbidirectional ? gravcreate(3, 0, 295, 0, 7, 19) : gravcreate(3, 1, 280, 0, 7, 19);
+                    game.swnbidirectional ? gravcreate(4, 0, 315, 0, 7, 20) : gravcreate(4, 1, 300, 0, 7, 20);
+                    game.swnbidirectional ? gravcreate(5, 0, 335, 0, 7, 21) : gravcreate(5, 1, 320, 0, 7, 21);
+
+                    game.swnstate = 0;
+                    game.swndelay = 90;
+                } break;
+
+                case 101: {
+                    // Cavern //
+                    // rare //
                 
-                if (game.swnrand < game.common)
-                {
-                    game.swnstate = game.swncommonpatterns[int(xoshiro_rand() * game.swncommonpatterns[0]) + 1];
-                }
-                else if (game.swnrand < game.common + game.standard)
-                {
-                    game.swnstate = game.swnstandardpatterns[int(xoshiro_rand() * game.swnstandardpatterns[0]) + 1];
-                }
-                else if (game.swnrand < game.common + game.standard + game.unusual)
-                {
-                    game.swnstate = game.swnunusualpatterns[int(xoshiro_rand() * game.swnunusualpatterns[0]) + 1];
-                }
-                else if (game.swnrand < game.common + game.standard + game.unusual + game.rare)
-                {
-                    game.swnstate = game.swnrarepatterns[int(xoshiro_rand() * game.swnrarepatterns[0]) + 1];
-                }
-                else if (game.swnrand < game.common + game.standard + game.unusual + game.rare + game.exotic)
-                {
-                    game.swnstate = game.swnexoticpatterns[int(xoshiro_rand() * game.swnexoticpatterns[0]) + 1];
-                }
+                    if (game.swnstate2 == 90)
+                    {
+                        gravcreate(5, 2, 302, 0, 0, 12);
+                        gravcreate(4, 2, 302, 0, 0, 11);
+                        gravcreate(2, 2, 302, 0, 0, 10);
+                        gravcreate(3, 2, 302, 0, 0, 9);
+                        gravcreate(1, 2, 302, 0, 0, 8);
+                        gravcreate(0, 2, 302, 0, 0, 7);
+                        gravcreate(0, 2, 2, 0, 0, 6);
+                        gravcreate(1, 2, 2, 0, 0, 5);
+                        gravcreate(2, 2, 2, 0, 0, 4);
+                        gravcreate(3, 2, 2, 0, 0, 3);
+                        gravcreate(4, 2, 2, 0, 0, 2);
+                        gravcreate(5, 2, 2, 0, 0, 1);
 
-                if (game.swnpractice != 0)
-                {
-                    game.swnstate = game.swnpractice;
-                }
-                break;
+                        game.swnstate3 = int(xoshiro_rand() * 2); // 0 or 1, right or left
 
-            // ------------------------ PASTE PATTERNS HERE ------------------------ //
+                        for (int i = 0; i < 10; i++)
+                        {
+                            game.swnstate5 = int(xoshiro_rand() * 3) + 2; // 2, 3, or 4
+
+                            if (int(xoshiro_rand() * 2) == 0) // stalagmite or stalactite
+                            {
+                                for (int j = 0; j <= game.swnstate5; j++)
+                                {
+                                    gravcreate(j, game.swnstate3, game.swnstate4, 0, 3);
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j <= game.swnstate5; j++)
+                                {
+                                    gravcreate(5 - j, game.swnstate3, game.swnstate4, 0, 3);
+                                }
+                            }
+
+                            game.swnstate4 += 80;
+                        }
+
+                        game.swnstate = 0;
+                        game.swndelay = 360;
+                    }
+                    else
+                    {
+                        if (game.swnstate2 % 15 == 0)
+                        {
+                            if (game.swnstate2 % 2 == 0)
+                            {
+                                game.swnwallwarnings = "302,158,302,138,302,98,302,118,302,78,302,58,2,58,2,78,2,98,2,118,2,138,2,158,";
+                            }
+                            else
+                            {
+                                game.swnwallwarnings = "";
+                            }
+                        }
+
+                        game.swnstate2++;
+
+                        game.swnstate = 101;
+                        game.swndelay = 0;
+                    }
+                } break;
+
+                case 102: {     
+                    // Timing //
+                    // standard //
+
+                    game.swnbidirectional ? gravcreate(0, 1, 60, 0, 6, 1) : gravcreate(0, 0, 75, 0, 6, 1);
+                    game.swnbidirectional ? gravcreate(1, 1, 60, 0, 6, 2) : gravcreate(1, 0, 75, 0, 6, 2);
+                    game.swnbidirectional ? gravcreate(2, 1, 60, 0, 6, 3) : gravcreate(2, 0, 75, 0, 6, 3);
+                    game.swnbidirectional ? gravcreate(3, 1, 60, 0, 6, 4) : gravcreate(3, 0, 75, 0, 6, 4);
+                    game.swnbidirectional ? gravcreate(4, 1, 60, 0, 6, 5) : gravcreate(4, 0, 75, 0, 6, 5);
+                    game.swnbidirectional ? gravcreate(5, 1, 60, 0, 6, 6) : gravcreate(5, 0, 75, 0, 6, 6);
+                    game.swnbidirectional ? gravcreate(0, 1, 0, 0, 6, 7) : gravcreate(0, 0, 15, 0, 6, 7);
+                    game.swnbidirectional ? gravcreate(1, 1, 0, 0, 6, 8) : gravcreate(1, 0, 15, 0, 6, 8);
+                    game.swnbidirectional ? gravcreate(2, 1, 0, 0, 6, 9) : gravcreate(2, 0, 15, 0, 6, 9);
+                    game.swnbidirectional ? gravcreate(3, 1, 0, 0, 6, 10) : gravcreate(3, 0, 15, 0, 6, 10);
+                    game.swnbidirectional ? gravcreate(4, 1, 0, 0, 6, 11) : gravcreate(4, 0, 15, 0, 6, 11);
+                    game.swnbidirectional ? gravcreate(5, 1, 0, 0, 6, 12) : gravcreate(5, 0, 15, 0, 6, 12);
+                    game.swnbidirectional ? gravcreate(5, 1, 120, 0, 6, 13) : gravcreate(5, 0, 135, 0, 6, 13);
+                    game.swnbidirectional ? gravcreate(4, 1, 120, 0, 6, 14) : gravcreate(4, 0, 135, 0, 6, 14);
+                    game.swnbidirectional ? gravcreate(2, 1, 120, 0, 6, 15) : gravcreate(2, 0, 135, 0, 6, 15);
+                    game.swnbidirectional ? gravcreate(3, 1, 120, 0, 6, 16) : gravcreate(3, 0, 135, 0, 6, 16);
+                    game.swnbidirectional ? gravcreate(1, 1, 120, 0, 6, 17) : gravcreate(1, 0, 135, 0, 6, 17);
+                    game.swnbidirectional ? gravcreate(0, 1, 120, 0, 6, 18) : gravcreate(0, 0, 135, 0, 6, 18);
+                    game.swnbidirectional ? gravcreate(5, 1, 240, 0, 6, 19) : gravcreate(5, 0, 255, 0, 6, 19);
+                    game.swnbidirectional ? gravcreate(4, 1, 240, 0, 6, 20) : gravcreate(4, 0, 255, 0, 6, 20);
+                    game.swnbidirectional ? gravcreate(3, 1, 240, 0, 6, 21) : gravcreate(3, 0, 255, 0, 6, 21);
+                    game.swnbidirectional ? gravcreate(2, 1, 240, 0, 6, 22) : gravcreate(2, 0, 255, 0, 6, 22);
+                    game.swnbidirectional ? gravcreate(0, 1, 240, 0, 6, 23) : gravcreate(0, 0, 255, 0, 6, 23);
+                    game.swnbidirectional ? gravcreate(1, 1, 240, 0, 6, 24) : gravcreate(1, 0, 255, 0, 6, 24);
+                    game.swnbidirectional ? gravcreate(0, 1, 300, 0, 6, 25) : gravcreate(0, 0, 315, 0, 6, 25);
+                    game.swnbidirectional ? gravcreate(1, 1, 300, 0, 6, 26) : gravcreate(1, 0, 315, 0, 6, 26);
+                    game.swnbidirectional ? gravcreate(3, 1, 300, 0, 6, 27) : gravcreate(3, 0, 315, 0, 6, 27);
+                    game.swnbidirectional ? gravcreate(2, 1, 300, 0, 6, 28) : gravcreate(2, 0, 315, 0, 6, 28);
+                    game.swnbidirectional ? gravcreate(4, 1, 300, 0, 6, 29) : gravcreate(4, 0, 315, 0, 6, 29);
+                    game.swnbidirectional ? gravcreate(5, 1, 300, 0, 6, 30) : gravcreate(5, 0, 315, 0, 6, 30);
+                    game.swnbidirectional ? gravcreate(0, 1, 180, 0, 6, 31) : gravcreate(0, 0, 195, 0, 6, 31);
+                    game.swnbidirectional ? gravcreate(1, 1, 180, 0, 6, 32) : gravcreate(1, 0, 195, 0, 6, 32);
+                    game.swnbidirectional ? gravcreate(2, 1, 180, 0, 6, 33) : gravcreate(2, 0, 195, 0, 6, 33);
+                    game.swnbidirectional ? gravcreate(3, 1, 180, 0, 6, 34) : gravcreate(3, 0, 195, 0, 6, 34);
+                    game.swnbidirectional ? gravcreate(4, 1, 180, 0, 6, 35) : gravcreate(4, 0, 195, 0, 6, 35);
+                    game.swnbidirectional ? gravcreate(5, 1, 180, 0, 6, 36) : gravcreate(5, 0, 195, 0, 6, 36);
+
+                    game.swnstate = 0;
+                    game.swndelay = 120;
+                } break;
+
+                case 103: {     
+                    // Sandwich Wrap //
+                    // exotic //
+
+                    if (game.swnstate2 == 90)
+                    {
+                        game.swnbidirectional ? gravcreate(1, 1, 480, 10, 7, 1) : gravcreate(1, 0, 495, 10, 7, 1);
+                        game.swnbidirectional ? gravcreate(3, 1, 480, 10, 7, 2) : gravcreate(3, 0, 495, 10, 7, 2);
+                        game.swnbidirectional ? gravcreate(2, 1, 480, 10, 7, 3) : gravcreate(2, 0, 495, 10, 7, 3);
+                        game.swnbidirectional ? gravcreate(1, 1, 160, 10, 7, 4) : gravcreate(1, 0, 175, 10, 7, 4);
+                        game.swnbidirectional ? gravcreate(3, 1, 160, 10, 7, 5) : gravcreate(3, 0, 175, 10, 7, 5);
+                        game.swnbidirectional ? gravcreate(2, 1, 160, 10, 7, 6) : gravcreate(2, 0, 175, 10, 7, 6);
+                        game.swnbidirectional ? gravcreate(3, 0, 335, 10, 7, 7) : gravcreate(3, 1, 320, 10, 7, 7);
+                        game.swnbidirectional ? gravcreate(1, 0, 335, 10, 7, 8) : gravcreate(1, 1, 320, 10, 7, 8);
+                        game.swnbidirectional ? gravcreate(2, 0, 335, 10, 7, 9) : gravcreate(2, 1, 320, 10, 7, 9);
+                        game.swnbidirectional ? gravcreate(1, 0, 15, 10, 7, 10) : gravcreate(1, 1, 0, 10, 7, 10);
+                        game.swnbidirectional ? gravcreate(3, 0, 15, 10, 7, 11) : gravcreate(3, 1, 0, 10, 7, 11);
+                        game.swnbidirectional ? gravcreate(2, 0, 15, 10, 7, 12) : gravcreate(2, 1, 0, 10, 7, 12);
+                        game.swnbidirectional ? gravcreate(3, 1, 0, 0, 0, 13) : gravcreate(3, 0, 15, 0, 0, 13);
+                        game.swnbidirectional ? gravcreate(5, 2, 152, 0, 0, 14) : gravcreate(5, 2, 152, 0, 0, 14);
+                        game.swnbidirectional ? gravcreate(4, 2, 152, 0, 0, 15) : gravcreate(4, 2, 152, 0, 0, 15);
+                        game.swnbidirectional ? gravcreate(3, 2, 152, 0, 0, 16) : gravcreate(3, 2, 152, 0, 0, 16);
+                        game.swnbidirectional ? gravcreate(1, 2, 152, 0, 0, 17) : gravcreate(1, 2, 152, 0, 0, 17);
+                        game.swnbidirectional ? gravcreate(2, 2, 152, 0, 0, 18) : gravcreate(2, 2, 152, 0, 0, 18);
+                        game.swnbidirectional ? gravcreate(0, 2, 152, 0, 0, 19) : gravcreate(0, 2, 152, 0, 0, 19);
+
+                        game.swnstate = 0;
+                        game.swndelay = 120;
+                    }
+                    else
+                    {
+                        if (game.swnstate2 % 15 == 0)
+                        {
+                            if (game.swnstate2 % 2 == 0)
+                            {
+                                game.swnwallwarnings = game.swnbidirectional ? "152,158,152,138,152,118,152,78,152,98,152,58," : "152,158,152,138,152,118,152,78,152,98,152,58,";
+                            }
+                            else
+                            {
+                                game.swnwallwarnings = "";
+                            }
+                        }
+
+                        game.swnstate2++;
+
+                        game.swnstate = 103;
+                        game.swndelay = 0;
+                    }
+                } break;
+
+                case 104: {     
+                    // Conveyor //
+                    // rare //
+
+                    if (game.swnstate2 == 90)
+                    {
+                        gravcreate(5, 2, 302, 0, 0, 1);
+                        gravcreate(5, 2, 182, 0, 0, 2);
+                        gravcreate(5, 2, 62, 0, 0, 3);
+                        gravcreate(5, 2, 242, 0, 0, 4);
+                        gravcreate(5, 2, 122, 0, 0, 5);
+                        gravcreate(5, 2, 2, 0, 0, 6);
+                        gravcreate(4, 0, 755, 0, 3, 7);
+                        gravcreate(3, 0, 755, 0, 3, 8);
+                        gravcreate(2, 0, 755, 0, 3, 9);
+                        gravcreate(2, 0, 735, 0, 3, 10);
+                        gravcreate(3, 0, 735, 0, 3, 11);
+                        gravcreate(4, 0, 735, 0, 3, 12);
+                        gravcreate(4, 0, 715, 0, 3, 13);
+                        gravcreate(4, 0, 615, 0, 3, 14);
+                        gravcreate(3, 0, 615, 0, 3, 15);
+                        gravcreate(3, 0, 575, 0, 3, 16);
+                        gravcreate(3, 0, 595, 0, 3, 17);
+                        gravcreate(4, 0, 595, 0, 3, 18);
+                        gravcreate(4, 0, 575, 0, 3, 19);
+                        gravcreate(2, 0, 575, 0, 3, 20);
+                        gravcreate(4, 0, 475, 0, 3, 21);
+                        gravcreate(3, 0, 475, 0, 3, 22);
+                        gravcreate(3, 0, 455, 0, 3, 23);
+                        gravcreate(4, 0, 455, 0, 3, 24);
+                        gravcreate(4, 0, 435, 0, 3, 25);
+                        gravcreate(2, 0, 455, 0, 3, 26);
+                        gravcreate(4, 0, 335, 0, 3, 27);
+                        gravcreate(3, 0, 335, 0, 3, 28);
+                        gravcreate(3, 0, 315, 0, 3, 29);
+                        gravcreate(3, 0, 295, 0, 3, 30);
+                        gravcreate(4, 0, 295, 0, 3, 31);
+                        gravcreate(4, 0, 315, 0, 3, 32);
+                        gravcreate(2, 0, 315, 0, 3, 33);
+                        gravcreate(4, 0, 195, 0, 3, 34);
+                        gravcreate(4, 0, 175, 0, 3, 35);
+                        gravcreate(3, 0, 175, 0, 3, 36);
+                        gravcreate(2, 0, 175, 0, 3, 37);
+                        gravcreate(3, 0, 155, 0, 3, 38);
+                        gravcreate(4, 0, 155, 0, 3, 39);
+                        gravcreate(4, 0, 55, 0, 3, 40);
+                        gravcreate(4, 0, 35, 0, 3, 41);
+                        gravcreate(4, 0, 15, 0, 3, 42);
+                        gravcreate(3, 0, 35, 0, 3, 43);
+                        gravcreate(3, 0, 15, 0, 3, 44);
+                        gravcreate(3, 0, 55, 0, 3, 45);
+                        gravcreate(2, 0, 35, 0, 3, 46);
+                        gravcreate(2, 0, 15, 0, 3, 47);
+                        gravcreate(4, 0, 855, 0, 3, 48);
+                        gravcreate(3, 0, 855, 0, 3, 49);
+                        gravcreate(2, 0, 855, 0, 3, 50);
+                        gravcreate(3, 0, 875, 0, 3, 51);
+                        gravcreate(4, 0, 875, 0, 3, 52);
+                        gravcreate(4, 0, 895, 0, 3, 53);
+                        gravcreate(3, 0, 895, 0, 3, 54);
+                        gravcreate(2, 0, 895, 0, 3, 55);
+
+                        game.swnstate = 0;
+                        game.swndelay = 450;
+                    }
+                    else
+                    {
+                        if (game.swnstate2 % 15 == 0)
+                        {
+                            if (game.swnstate2 % 2 == 0)
+                            {
+                                game.swnwallwarnings = "302,158,182,158,62,158,242,158,122,158,2,158,";
+                            }
+                            else
+                            {
+                                game.swnwallwarnings = "";
+                            }
+                        }
+
+                        game.swnstate2++;
+
+                        game.swnstate = 104;
+                        game.swndelay = 0;
+                    }
+                } break;
+
+                case 105: {     
+                    // YaY //
+                    // unusual //
+
+                    if (game.swnstate2 == 90)
+                    {
+                        gravcreate(5, 2, 292, 0, 0, 1);
+                        gravcreate(4, 2, 292, 0, 0, 2);
+                        gravcreate(3, 2, 292, 0, 0, 3);
+                        gravcreate(2, 2, 312, 0, 0, 4);
+                        gravcreate(3, 2, 12, 0, 0, 5);
+                        gravcreate(4, 2, 12, 0, 0, 6);
+                        gravcreate(5, 2, 12, 0, 0, 7);
+                        gravcreate(2, 2, 152, 0, 0, 8);
+                        gravcreate(5, 2, 172, 0, 0, 9);
+                        gravcreate(4, 2, 172, 0, 0, 10);
+                        gravcreate(5, 2, 132, 0, 0, 11);
+                        gravcreate(4, 2, 132, 0, 0, 12);
+                        gravcreate(3, 2, 172, 0, 0, 13);
+                        gravcreate(3, 2, 132, 0, 0, 14);
+                        gravcreate(0, 2, 32, 0, 0, 15);
+                        gravcreate(1, 2, 52, 0, 0, 16);
+                        gravcreate(0, 2, 272, 0, 0, 17);
+                        gravcreate(1, 2, 252, 0, 0, 18);
+                        gravcreate(5, 2, 232, 0, 0, 19);
+                        gravcreate(3, 2, 232, 0, 0, 20);
+                        gravcreate(4, 2, 232, 0, 0, 21);
+                        gravcreate(2, 2, 232, 0, 0, 22);
+                        gravcreate(1, 2, 212, 0, 0, 23);
+                        gravcreate(0, 2, 192, 0, 0, 24);
+                        gravcreate(0, 2, 112, 0, 0, 25);
+                        gravcreate(1, 2, 92, 0, 0, 26);
+                        gravcreate(2, 2, 72, 0, 0, 27);
+                        gravcreate(3, 2, 72, 0, 0, 28);
+                        gravcreate(4, 2, 72, 0, 0, 29);
+                        gravcreate(5, 2, 72, 0, 0, 30);
+                        gravcreate(4, 2, 152, 0, 0, 31);
+                        gravcreate(4, 2, 312, 0, 0, 32);
+                        gravcreate(4, 2, -8, 0, 0, 33);
+                        gravcreate(2, 2, -8, 0, 0, 34);
+
+                        game.swnstate = 0;
+                        game.swndelay = 150;
+                    }
+                    else
+                    {
+                        if (game.swnstate2 % 15 == 0)
+                        {
+                            if (game.swnstate2 % 2 == 0)
+                            {
+                                game.swnwallwarnings = "292,158,292,138,292,118,312,98,12,118,12,138,12,158,152,98,172,158,172,138,132,158,132,138,172,118,132,118,32,58,52,78,272,58,252,78,232,158,232,118,232,138,232,98,212,78,192,58,112,58,92,78,72,98,72,118,72,138,72,158,152,138,312,138,-8,138,-8,98,";
+                            }
+                            else
+                            {
+                                game.swnwallwarnings = "";
+                            }
+                        }
+
+                        game.swnstate2++;
+
+                        game.swnstate = 105;
+                        game.swndelay = 0;
+                    }
+                } break;
+
+                case 106: {     
+                    // Red Light Green Light //
+                    // exotic //
+
+                    if (game.swnstate2 == 0)
+                    {
+                        game.swnbidirectional ? gravcreate(4, 0, 355, 0, 6, 1) : gravcreate(4, 1, 340, 0, 6, 1);
+                        game.swnbidirectional ? gravcreate(3, 0, 355, 0, 6, 2) : gravcreate(3, 1, 340, 0, 6, 2);
+                        game.swnbidirectional ? gravcreate(2, 0, 355, 0, 6, 3) : gravcreate(2, 1, 340, 0, 6, 3);
+                        game.swnbidirectional ? gravcreate(1, 0, 355, 0, 6, 4) : gravcreate(1, 1, 340, 0, 6, 4);
+                        game.swnbidirectional ? gravcreate(0, 0, 355, 0, 6, 5) : gravcreate(0, 1, 340, 0, 6, 5);
+                        game.swnbidirectional ? gravcreate(5, 0, 355, 0, 6, 6) : gravcreate(5, 1, 340, 0, 6, 6);
+                        game.swnbidirectional ? gravcreate(0, 0, 55, 0, 6, 7) : gravcreate(0, 1, 40, 0, 6, 7);
+                        game.swnbidirectional ? gravcreate(1, 0, 55, 0, 6, 8) : gravcreate(1, 1, 40, 0, 6, 8);
+                        game.swnbidirectional ? gravcreate(2, 0, 55, 0, 6, 9) : gravcreate(2, 1, 40, 0, 6, 9);
+                        game.swnbidirectional ? gravcreate(3, 0, 55, 0, 6, 10) : gravcreate(3, 1, 40, 0, 6, 10);
+                        game.swnbidirectional ? gravcreate(5, 0, 55, 0, 6, 11) : gravcreate(5, 1, 40, 0, 6, 11);
+                        game.swnbidirectional ? gravcreate(4, 0, 55, 0, 6, 12) : gravcreate(4, 1, 40, 0, 6, 12);
+                        game.swnbidirectional ? gravcreate(5, 0, 75, 0, 6, 13) : gravcreate(5, 1, 60, 0, 6, 13);
+                        game.swnbidirectional ? gravcreate(5, 0, 95, 0, 6, 14) : gravcreate(5, 1, 80, 0, 6, 14);
+                        game.swnbidirectional ? gravcreate(4, 0, 95, 0, 6, 15) : gravcreate(4, 1, 80, 0, 6, 15);
+                        game.swnbidirectional ? gravcreate(4, 0, 75, 0, 6, 16) : gravcreate(4, 1, 60, 0, 6, 16);
+                        game.swnbidirectional ? gravcreate(2, 0, 95, 0, 6, 17) : gravcreate(2, 1, 80, 0, 6, 17);
+                        game.swnbidirectional ? gravcreate(3, 0, 95, 0, 6, 18) : gravcreate(3, 1, 80, 0, 6, 18);
+                        game.swnbidirectional ? gravcreate(3, 0, 75, 0, 6, 19) : gravcreate(3, 1, 60, 0, 6, 19);
+                        game.swnbidirectional ? gravcreate(2, 0, 75, 0, 6, 20) : gravcreate(2, 1, 60, 0, 6, 20);
+                        game.swnbidirectional ? gravcreate(1, 0, 75, 0, 6, 21) : gravcreate(1, 1, 60, 0, 6, 21);
+                        game.swnbidirectional ? gravcreate(1, 0, 95, 0, 6, 22) : gravcreate(1, 1, 80, 0, 6, 22);
+                        game.swnbidirectional ? gravcreate(0, 0, 95, 0, 6, 23) : gravcreate(0, 1, 80, 0, 6, 23);
+                        game.swnbidirectional ? gravcreate(0, 0, 75, 0, 6, 24) : gravcreate(0, 1, 60, 0, 6, 24);
+                        game.swnbidirectional ? gravcreate(0, 0, 115, 0, 6, 25) : gravcreate(0, 1, 100, 0, 6, 25);
+                        game.swnbidirectional ? gravcreate(0, 0, 155, 0, 6, 26) : gravcreate(0, 1, 140, 0, 6, 26);
+                        game.swnbidirectional ? gravcreate(1, 0, 135, 0, 6, 27) : gravcreate(1, 1, 120, 0, 6, 27);
+                        game.swnbidirectional ? gravcreate(0, 0, 135, 0, 6, 28) : gravcreate(0, 1, 120, 0, 6, 28);
+                        game.swnbidirectional ? gravcreate(1, 0, 155, 0, 6, 29) : gravcreate(1, 1, 140, 0, 6, 29);
+                        game.swnbidirectional ? gravcreate(1, 0, 115, 0, 6, 30) : gravcreate(1, 1, 100, 0, 6, 30);
+                        game.swnbidirectional ? gravcreate(2, 0, 115, 0, 6, 31) : gravcreate(2, 1, 100, 0, 6, 31);
+                        game.swnbidirectional ? gravcreate(2, 0, 135, 0, 6, 32) : gravcreate(2, 1, 120, 0, 6, 32);
+                        game.swnbidirectional ? gravcreate(2, 0, 155, 0, 6, 33) : gravcreate(2, 1, 140, 0, 6, 33);
+                        game.swnbidirectional ? gravcreate(3, 0, 155, 0, 6, 34) : gravcreate(3, 1, 140, 0, 6, 34);
+                        game.swnbidirectional ? gravcreate(3, 0, 115, 0, 6, 35) : gravcreate(3, 1, 100, 0, 6, 35);
+                        game.swnbidirectional ? gravcreate(3, 0, 135, 0, 6, 36) : gravcreate(3, 1, 120, 0, 6, 36);
+                        game.swnbidirectional ? gravcreate(4, 0, 135, 0, 6, 37) : gravcreate(4, 1, 120, 0, 6, 37);
+                        game.swnbidirectional ? gravcreate(4, 0, 155, 0, 6, 38) : gravcreate(4, 1, 140, 0, 6, 38);
+                        game.swnbidirectional ? gravcreate(5, 0, 155, 0, 6, 39) : gravcreate(5, 1, 140, 0, 6, 39);
+                        game.swnbidirectional ? gravcreate(5, 0, 135, 0, 6, 40) : gravcreate(5, 1, 120, 0, 6, 40);
+                        game.swnbidirectional ? gravcreate(5, 0, 115, 0, 6, 41) : gravcreate(5, 1, 100, 0, 6, 41);
+                        game.swnbidirectional ? gravcreate(4, 0, 115, 0, 6, 42) : gravcreate(4, 1, 100, 0, 6, 42);
+                        game.swnbidirectional ? gravcreate(5, 0, 195, 0, 6, 43) : gravcreate(5, 1, 180, 0, 6, 43);
+                        game.swnbidirectional ? gravcreate(5, 0, 175, 0, 6, 44) : gravcreate(5, 1, 160, 0, 6, 44);
+                        game.swnbidirectional ? gravcreate(4, 0, 175, 0, 6, 45) : gravcreate(4, 1, 160, 0, 6, 45);
+                        game.swnbidirectional ? gravcreate(4, 0, 195, 0, 6, 46) : gravcreate(4, 1, 180, 0, 6, 46);
+                        game.swnbidirectional ? gravcreate(4, 0, 215, 0, 6, 47) : gravcreate(4, 1, 200, 0, 6, 47);
+                        game.swnbidirectional ? gravcreate(5, 0, 215, 0, 6, 48) : gravcreate(5, 1, 200, 0, 6, 48);
+                        game.swnbidirectional ? gravcreate(5, 0, 235, 0, 6, 49) : gravcreate(5, 1, 220, 0, 6, 49);
+                        game.swnbidirectional ? gravcreate(4, 0, 235, 0, 6, 50) : gravcreate(4, 1, 220, 0, 6, 50);
+                        game.swnbidirectional ? gravcreate(4, 0, 255, 0, 6, 51) : gravcreate(4, 1, 240, 0, 6, 51);
+                        game.swnbidirectional ? gravcreate(5, 0, 255, 0, 6, 52) : gravcreate(5, 1, 240, 0, 6, 52);
+                        game.swnbidirectional ? gravcreate(5, 0, 275, 0, 6, 53) : gravcreate(5, 1, 260, 0, 6, 53);
+                        game.swnbidirectional ? gravcreate(4, 0, 275, 0, 6, 54) : gravcreate(4, 1, 260, 0, 6, 54);
+                        game.swnbidirectional ? gravcreate(3, 0, 275, 0, 6, 55) : gravcreate(3, 1, 260, 0, 6, 55);
+                        game.swnbidirectional ? gravcreate(2, 0, 275, 0, 6, 56) : gravcreate(2, 1, 260, 0, 6, 56);
+                        game.swnbidirectional ? gravcreate(1, 0, 275, 0, 6, 57) : gravcreate(1, 1, 260, 0, 6, 57);
+                        game.swnbidirectional ? gravcreate(0, 0, 275, 0, 6, 58) : gravcreate(0, 1, 260, 0, 6, 58);
+                        game.swnbidirectional ? gravcreate(3, 0, 255, 0, 6, 59) : gravcreate(3, 1, 240, 0, 6, 59);
+                        game.swnbidirectional ? gravcreate(3, 0, 235, 0, 6, 60) : gravcreate(3, 1, 220, 0, 6, 60);
+                        game.swnbidirectional ? gravcreate(3, 0, 215, 0, 6, 61) : gravcreate(3, 1, 200, 0, 6, 61);
+                        game.swnbidirectional ? gravcreate(3, 0, 195, 0, 6, 62) : gravcreate(3, 1, 180, 0, 6, 62);
+                        game.swnbidirectional ? gravcreate(3, 0, 175, 0, 6, 63) : gravcreate(3, 1, 160, 0, 6, 63);
+                        game.swnbidirectional ? gravcreate(2, 0, 175, 0, 6, 64) : gravcreate(2, 1, 160, 0, 6, 64);
+                        game.swnbidirectional ? gravcreate(2, 0, 195, 0, 6, 65) : gravcreate(2, 1, 180, 0, 6, 65);
+                        game.swnbidirectional ? gravcreate(2, 0, 215, 0, 6, 66) : gravcreate(2, 1, 200, 0, 6, 66);
+                        game.swnbidirectional ? gravcreate(2, 0, 235, 0, 6, 67) : gravcreate(2, 1, 220, 0, 6, 67);
+                        game.swnbidirectional ? gravcreate(2, 0, 255, 0, 6, 68) : gravcreate(2, 1, 240, 0, 6, 68);
+                        game.swnbidirectional ? gravcreate(1, 0, 255, 0, 6, 69) : gravcreate(1, 1, 240, 0, 6, 69);
+                        game.swnbidirectional ? gravcreate(1, 0, 235, 0, 6, 70) : gravcreate(1, 1, 220, 0, 6, 70);
+                        game.swnbidirectional ? gravcreate(0, 0, 235, 0, 6, 71) : gravcreate(0, 1, 220, 0, 6, 71);
+                        game.swnbidirectional ? gravcreate(0, 0, 255, 0, 6, 72) : gravcreate(0, 1, 240, 0, 6, 72);
+                        game.swnbidirectional ? gravcreate(0, 0, 215, 0, 6, 73) : gravcreate(0, 1, 200, 0, 6, 73);
+                        game.swnbidirectional ? gravcreate(1, 0, 215, 0, 6, 74) : gravcreate(1, 1, 200, 0, 6, 74);
+                        game.swnbidirectional ? gravcreate(1, 0, 195, 0, 6, 75) : gravcreate(1, 1, 180, 0, 6, 75);
+                        game.swnbidirectional ? gravcreate(0, 0, 195, 0, 6, 76) : gravcreate(0, 1, 180, 0, 6, 76);
+                        game.swnbidirectional ? gravcreate(1, 0, 175, 0, 6, 77) : gravcreate(1, 1, 160, 0, 6, 77);
+                        game.swnbidirectional ? gravcreate(0, 0, 175, 0, 6, 78) : gravcreate(0, 1, 160, 0, 6, 78);
+                        game.swnbidirectional ? gravcreate(5, 0, 35, 0, 6, 79) : gravcreate(5, 1, 20, 0, 6, 79);
+                        game.swnbidirectional ? gravcreate(5, 0, 15, 0, 6, 80) : gravcreate(5, 1, 0, 0, 6, 80);
+                        game.swnbidirectional ? gravcreate(4, 0, 15, 0, 6, 81) : gravcreate(4, 1, 0, 0, 6, 81);
+                        game.swnbidirectional ? gravcreate(4, 0, 35, 0, 6, 82) : gravcreate(4, 1, 20, 0, 6, 82);
+                        game.swnbidirectional ? gravcreate(3, 0, 35, 0, 6, 83) : gravcreate(3, 1, 20, 0, 6, 83);
+                        game.swnbidirectional ? gravcreate(3, 0, 15, 0, 6, 84) : gravcreate(3, 1, 0, 0, 6, 84);
+                        game.swnbidirectional ? gravcreate(2, 0, 15, 0, 6, 85) : gravcreate(2, 1, 0, 0, 6, 85);
+                        game.swnbidirectional ? gravcreate(2, 0, 35, 0, 6, 86) : gravcreate(2, 1, 20, 0, 6, 86);
+                        game.swnbidirectional ? gravcreate(1, 0, 35, 0, 6, 87) : gravcreate(1, 1, 20, 0, 6, 87);
+                        game.swnbidirectional ? gravcreate(1, 0, 15, 0, 6, 88) : gravcreate(1, 1, 0, 0, 6, 88);
+                        game.swnbidirectional ? gravcreate(0, 0, 15, 0, 6, 89) : gravcreate(0, 1, 0, 0, 6, 89);
+                        game.swnbidirectional ? gravcreate(0, 0, 35, 0, 6, 90) : gravcreate(0, 1, 20, 0, 6, 90);
+                    }
+
+                    game.swnstate2++;
+
+                    if (game.swnstate2 < 92)
+                    {
+                        if (game.swnstate2 >= 86)
+                        {
+                            if (game.swnstate3 == 0)
+                            {
+                                game.swnstate3 = 1;
+
+                                swnfreeze();
+
+                                game.swndelay = 30;
+                            }
+                            else
+                            {
+                                game.swnstate3 = 0;
+
+                                swnunfreeze();
+
+                                game.swndelay = 15;
+                            }
+                        }
+                        else
+                        {
+                            game.swndelay = 0;
+                        }
+
+                        game.swnstate = 106;
+                    }
+                    else
+                    {
+                        game.swnstate = 0;
+                        game.swndelay = 0;
+                    }
+                } break;
+                        
+                case 107: {     
+                    // Bug March //
+                    // exotic //
+
+                    if (game.swnstate2 == 0)
+                    {
+                        game.swnbidirectional ? gravcreate(0, 0, 415, 0, 7, 1) : gravcreate(0, 1, 400, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(5, 0, 315, 0, 7, 3) : gravcreate(5, 1, 300, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(0, 0, 215, 0, 7, 3) : gravcreate(0, 1, 200, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(5, 0, 115, 0, 7, 3) : gravcreate(5, 1, 100, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(0, 0, 15, 0, 7, 3) : gravcreate(0, 1, 0, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(5, 0, 115, 0, 7, 1) : gravcreate(5, 1, 100, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(0, 0, 215, 0, 7, 1) : gravcreate(0, 1, 200, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(5, 0, 315, 0, 7, 1) : gravcreate(5, 1, 300, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(3, 0, 65, -10, 7, 2) : gravcreate(3, 1, 50, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 165, -10, 7, 2) : gravcreate(3, 1, 150, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 265, -10, 7, 2) : gravcreate(3, 1, 250, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 365, -10, 7, 2) : gravcreate(3, 1, 350, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(0, 0, 615, 0, 7, 1) : gravcreate(0, 1, 600, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(5, 0, 515, 0, 7, 1) : gravcreate(5, 1, 500, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(0, 0, 415, 0, 7, 3) : gravcreate(0, 1, 400, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(5, 0, 515, 0, 7, 3) : gravcreate(5, 1, 500, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(3, 0, 465, -10, 7, 2) : gravcreate(3, 1, 450, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 565, -10, 7, 2) : gravcreate(3, 1, 550, -10, 7, 2);
+                        game.swnbidirectional ? gravcreate(0, 0, 615, 0, 7, 3) : gravcreate(0, 1, 600, 0, 7, 3);
+                        game.swnbidirectional ? gravcreate(5, 0, 715, 0, 7, 1) : gravcreate(5, 1, 700, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(3, 0, 665, -10, 7, 2) : gravcreate(3, 1, 650, -10, 7, 2);
+                        
+                        swnspeedchange(4, 1, 3);
+                        swnspeedchange(2, 2);
+                    }
+
+                    if (game.swnstate2 < 570)
+                    {
+                        if (game.swnstate2 % 50 == 0)
+                        {
+                            if (game.swnstate3 == 0)
+                            {
+                                game.swnstate3 = 1;
+
+                                swnfreeze(3);
+                                swnunfreeze(1);
+                            }
+                            else
+                            {
+                                game.swnstate3 = 0;
+
+                                swnfreeze(1);
+                                swnunfreeze(3);
+                            }
+                        }
+
+                        game.swnstate = 107;
+                    }
+                    else
+                    {
+                        game.swnstate = 0;
+                    }
+
+                    game.swnstate2++;
+                    game.swndelay = 0;
+                } break;
+
+                case 108: {     
+                    // Hunted //
+                    // common //
+
+                    if (game.swnstate2 == 90)
+                    {
+                        game.swnhomingtimer = 105;
+                        game.swnbidirectional ? gravcreate(2, 3, -98, 10, 7, 1) : gravcreate(2, 3, 402, 10, 7, 1);
+                        game.swnbidirectional ? gravcreate(2, 2, 102, 0, 0, 2) : gravcreate(2, 2, 202, 0, 0, 2);
+                        game.swnbidirectional ? gravcreate(2, 2, 202, 0, 0, 3) : gravcreate(2, 2, 102, 0, 0, 3);
+                        game.swnbidirectional ? gravcreate(2, 2, 2, 0, 0, 4) : gravcreate(2, 2, 302, 0, 0, 4);
+                        game.swnbidirectional ? gravcreate(2, 2, 302, 0, 0, 5) : gravcreate(2, 2, 2, 0, 0, 5);
+                        game.swnbidirectional ? gravcreate(0, 2, 302, 0, 0, 6) : gravcreate(0, 2, 2, 0, 0, 6);
+                        game.swnbidirectional ? gravcreate(1, 2, 302, 0, 0, 7) : gravcreate(1, 2, 2, 0, 0, 7);
+                        game.swnbidirectional ? gravcreate(4, 2, 302, 0, 0, 8) : gravcreate(4, 2, 2, 0, 0, 8);
+                        game.swnbidirectional ? gravcreate(3, 2, 302, 0, 0, 9) : gravcreate(3, 2, 2, 0, 0, 9);
+                        game.swnbidirectional ? gravcreate(5, 2, 302, 0, 0, 10) : gravcreate(5, 2, 2, 0, 0, 10);
+                        game.swnbidirectional ? gravcreate(5, 2, 202, 0, 0, 11) : gravcreate(5, 2, 102, 0, 0, 11);
+                        game.swnbidirectional ? gravcreate(4, 2, 202, 0, 0, 12) : gravcreate(4, 2, 102, 0, 0, 12);
+                        game.swnbidirectional ? gravcreate(3, 2, 202, 0, 0, 13) : gravcreate(3, 2, 102, 0, 0, 13);
+                        game.swnbidirectional ? gravcreate(1, 2, 202, 0, 0, 14) : gravcreate(1, 2, 102, 0, 0, 14);
+                        game.swnbidirectional ? gravcreate(0, 2, 202, 0, 0, 15) : gravcreate(0, 2, 102, 0, 0, 15);
+                        game.swnbidirectional ? gravcreate(0, 2, 102, 0, 0, 16) : gravcreate(0, 2, 202, 0, 0, 16);
+                        game.swnbidirectional ? gravcreate(1, 2, 102, 0, 0, 17) : gravcreate(1, 2, 202, 0, 0, 17);
+                        game.swnbidirectional ? gravcreate(3, 2, 102, 0, 0, 18) : gravcreate(3, 2, 202, 0, 0, 18);
+                        game.swnbidirectional ? gravcreate(4, 2, 102, 0, 0, 19) : gravcreate(4, 2, 202, 0, 0, 19);
+                        game.swnbidirectional ? gravcreate(5, 2, 102, 0, 0, 20) : gravcreate(5, 2, 202, 0, 0, 20);
+                        game.swnbidirectional ? gravcreate(5, 2, 2, 0, 0, 21) : gravcreate(5, 2, 302, 0, 0, 21);
+                        game.swnbidirectional ? gravcreate(4, 2, 2, 0, 0, 22) : gravcreate(4, 2, 302, 0, 0, 22);
+                        game.swnbidirectional ? gravcreate(3, 2, 2, 0, 0, 23) : gravcreate(3, 2, 302, 0, 0, 23);
+                        game.swnbidirectional ? gravcreate(0, 2, 2, 0, 0, 24) : gravcreate(0, 2, 302, 0, 0, 24);
+                        game.swnbidirectional ? gravcreate(1, 2, 2, 0, 0, 25) : gravcreate(1, 2, 302, 0, 0, 25);
+
+                        game.swnstate = 0;
+                        game.swndelay = 105;
+                    }
+                    else
+                    {
+                        if (game.swnstate2 % 15 == 0)
+                        {
+                            if (game.swnstate2 % 2 == 0)
+                            {
+                                game.swnwallwarnings = game.swnbidirectional ? "102,98,202,98,2,98,302,98,302,58,302,78,302,138,302,118,302,158,202,158,202,138,202,118,202,78,202,58,102,58,102,78,102,118,102,138,102,158,2,158,2,138,2,118,2,58,2,78," : "202,98,102,98,302,98,2,98,2,58,2,78,2,138,2,118,2,158,102,158,102,138,102,118,102,78,102,58,202,58,202,78,202,118,202,138,202,158,302,158,302,138,302,118,302,58,302,78,";
+                            }
+                            else
+                            {
+                                game.swnwallwarnings = "";
+                            }
+                        }
+
+                        game.swnstate2++;
+
+                        game.swnstate = 108;
+                        game.swndelay = 0;
+                    }
+                } break;
+
+                case 109: {     
+                    // Stars //
+                    // common //
+
+                    game.swnbidirectional ? gravcreate(3, 0, 35, 10, 7, 1) : gravcreate(3, 1, 20, 10, 7, 1);
+                    game.swnbidirectional ? gravcreate(2, 0, 15, 10, 7, 2) : gravcreate(2, 1, 0, 10, 7, 2);
+                    game.swnbidirectional ? gravcreate(1, 0, 35, 10, 7, 3) : gravcreate(1, 1, 20, 10, 7, 3);
+                    game.swnbidirectional ? gravcreate(2, 0, 55, 10, 7, 4) : gravcreate(2, 1, 40, 10, 7, 4);
+                    game.swnbidirectional ? gravcreate(1, 0, 95, -10, 7, 5) : gravcreate(1, 1, 80, -10, 7, 5);
+                    game.swnbidirectional ? gravcreate(0, 0, 115, -10, 7, 6) : gravcreate(0, 1, 100, -10, 7, 6);
+                    game.swnbidirectional ? gravcreate(2, 0, 115, -10, 7, 7) : gravcreate(2, 1, 100, -10, 7, 7);
+                    game.swnbidirectional ? gravcreate(1, 0, 135, -10, 7, 8) : gravcreate(1, 1, 120, -10, 7, 8);
+                    game.swnbidirectional ? gravcreate(5, 0, 155, -10, 7, 9) : gravcreate(5, 1, 140, -10, 7, 9);
+                    game.swnbidirectional ? gravcreate(4, 0, 175, -10, 7, 10) : gravcreate(4, 1, 160, -10, 7, 10);
+                    game.swnbidirectional ? gravcreate(5, 0, 195, -10, 7, 11) : gravcreate(5, 1, 180, -10, 7, 11);
+                    game.swnbidirectional ? gravcreate(5, 0, 175, 10, 7, 12) : gravcreate(5, 1, 160, 10, 7, 12);
+                    game.swnbidirectional ? gravcreate(2, 0, 235, 0, 7, 13) : gravcreate(2, 1, 220, 0, 7, 13);
+                    game.swnbidirectional ? gravcreate(1, 0, 255, 0, 7, 14) : gravcreate(1, 1, 240, 0, 7, 14);
+                    game.swnbidirectional ? gravcreate(2, 0, 275, 0, 7, 15) : gravcreate(2, 1, 260, 0, 7, 15);
+                    game.swnbidirectional ? gravcreate(3, 0, 255, 0, 7, 16) : gravcreate(3, 1, 240, 0, 7, 16);
+                    game.swnbidirectional ? gravcreate(0, 0, 355, -10, 7, 17) : gravcreate(0, 1, 340, -10, 7, 17);
+                    game.swnbidirectional ? gravcreate(1, 0, 335, -10, 7, 18) : gravcreate(1, 1, 320, -10, 7, 18);
+                    game.swnbidirectional ? gravcreate(2, 0, 355, -10, 7, 19) : gravcreate(2, 1, 340, -10, 7, 19);
+                    game.swnbidirectional ? gravcreate(1, 0, 375, -10, 7, 20) : gravcreate(1, 1, 360, -10, 7, 20);
+                    game.swnbidirectional ? gravcreate(5, 0, 435, 10, 7, 21) : gravcreate(5, 1, 420, 10, 7, 21);
+                    game.swnbidirectional ? gravcreate(4, 0, 415, 10, 7, 22) : gravcreate(4, 1, 400, 10, 7, 22);
+                    game.swnbidirectional ? gravcreate(3, 0, 435, 10, 7, 23) : gravcreate(3, 1, 420, 10, 7, 23);
+                    game.swnbidirectional ? gravcreate(4, 0, 455, 10, 7, 24) : gravcreate(4, 1, 440, 10, 7, 24);
+
+                    game.swnstate = 0;
+                    game.swndelay = 105;
+                } break;
+
+                case 110: {     
+                    // Doing Things The Side Way //
+                    // exotic //
+
+                    if (game.swnstate2 == 0)
+                    {
+                        game.swnbidirectional ? gravcreate(0, 0, 1795, 0, 7, 324) : gravcreate(0, 1, 1780, 0, 7, 324);
+                        game.swnbidirectional ? gravcreate(1, 0, 1795, 0, 7, 323) : gravcreate(1, 1, 1780, 0, 7, 323);
+                        game.swnbidirectional ? gravcreate(2, 0, 1795, 0, 7, 322) : gravcreate(2, 1, 1780, 0, 7, 322);
+                        game.swnbidirectional ? gravcreate(3, 0, 1795, 0, 7, 321) : gravcreate(3, 1, 1780, 0, 7, 321);
+                        game.swnbidirectional ? gravcreate(4, 0, 1795, 0, 7, 320) : gravcreate(4, 1, 1780, 0, 7, 320);
+                        game.swnbidirectional ? gravcreate(5, 0, 1795, 0, 7, 319) : gravcreate(5, 1, 1780, 0, 7, 319);
+                        game.swnbidirectional ? gravcreate(4, 0, 1775, 0, 7, 318) : gravcreate(4, 1, 1760, 0, 7, 318);
+                        game.swnbidirectional ? gravcreate(2, 0, 1775, 0, 7, 317) : gravcreate(2, 1, 1760, 0, 7, 317);
+                        game.swnbidirectional ? gravcreate(0, 0, 1775, 0, 7, 316) : gravcreate(0, 1, 1760, 0, 7, 316);
+                        game.swnbidirectional ? gravcreate(1, 0, 1755, 0, 7, 315) : gravcreate(1, 1, 1740, 0, 7, 315);
+                        game.swnbidirectional ? gravcreate(3, 0, 1755, 0, 7, 314) : gravcreate(3, 1, 1740, 0, 7, 314);
+                        game.swnbidirectional ? gravcreate(5, 0, 1755, 0, 7, 313) : gravcreate(5, 1, 1740, 0, 7, 313);
+                        game.swnbidirectional ? gravcreate(4, 0, 1735, 0, 7, 312) : gravcreate(4, 1, 1720, 0, 7, 312);
+                        game.swnbidirectional ? gravcreate(2, 0, 1735, 0, 7, 311) : gravcreate(2, 1, 1720, 0, 7, 311);
+                        game.swnbidirectional ? gravcreate(0, 0, 1735, 0, 7, 310) : gravcreate(0, 1, 1720, 0, 7, 310);
+                        game.swnbidirectional ? gravcreate(1, 0, 1715, 0, 7, 309) : gravcreate(1, 1, 1700, 0, 7, 309);
+                        game.swnbidirectional ? gravcreate(3, 0, 1715, 0, 7, 308) : gravcreate(3, 1, 1700, 0, 7, 308);
+                        game.swnbidirectional ? gravcreate(5, 0, 1715, 0, 7, 307) : gravcreate(5, 1, 1700, 0, 7, 307);
+                        game.swnbidirectional ? gravcreate(4, 0, 1695, 0, 7, 306) : gravcreate(4, 1, 1680, 0, 7, 306);
+                        game.swnbidirectional ? gravcreate(2, 0, 1695, 0, 7, 305) : gravcreate(2, 1, 1680, 0, 7, 305);
+                        game.swnbidirectional ? gravcreate(0, 0, 1695, 0, 7, 304) : gravcreate(0, 1, 1680, 0, 7, 304);
+                        game.swnbidirectional ? gravcreate(1, 0, 1675, 0, 7, 303) : gravcreate(1, 1, 1660, 0, 7, 303);
+                        game.swnbidirectional ? gravcreate(3, 0, 1675, 0, 7, 301) : gravcreate(3, 1, 1660, 0, 7, 301);
+                        game.swnbidirectional ? gravcreate(5, 0, 1675, 0, 7, 300) : gravcreate(5, 1, 1660, 0, 7, 300);
+                        game.swnbidirectional ? gravcreate(4, 0, 1655, 0, 7, 299) : gravcreate(4, 1, 1640, 0, 7, 299);
+                        game.swnbidirectional ? gravcreate(2, 0, 1655, 0, 7, 298) : gravcreate(2, 1, 1640, 0, 7, 298);
+                        game.swnbidirectional ? gravcreate(0, 0, 1655, 0, 7, 297) : gravcreate(0, 1, 1640, 0, 7, 297);
+                        game.swnbidirectional ? gravcreate(1, 0, 1635, 0, 7, 296) : gravcreate(1, 1, 1620, 0, 7, 296);
+                        game.swnbidirectional ? gravcreate(3, 0, 1635, 0, 7, 295) : gravcreate(3, 1, 1620, 0, 7, 295);
+                        game.swnbidirectional ? gravcreate(5, 0, 1635, 0, 7, 293) : gravcreate(5, 1, 1620, 0, 7, 293);
+                        game.swnbidirectional ? gravcreate(4, 0, 1615, 0, 7, 292) : gravcreate(4, 1, 1600, 0, 7, 292);
+                        game.swnbidirectional ? gravcreate(2, 0, 1615, 0, 7, 291) : gravcreate(2, 1, 1600, 0, 7, 291);
+                        game.swnbidirectional ? gravcreate(0, 0, 1615, 0, 7, 290) : gravcreate(0, 1, 1600, 0, 7, 290);
+                        game.swnbidirectional ? gravcreate(1, 0, 1595, 0, 7, 289) : gravcreate(1, 1, 1580, 0, 7, 289);
+                        game.swnbidirectional ? gravcreate(3, 0, 1595, 0, 7, 288) : gravcreate(3, 1, 1580, 0, 7, 288);
+                        game.swnbidirectional ? gravcreate(5, 0, 1595, 0, 7, 287) : gravcreate(5, 1, 1580, 0, 7, 287);
+                        game.swnbidirectional ? gravcreate(4, 0, 1575, 0, 7, 286) : gravcreate(4, 1, 1560, 0, 7, 286);
+                        game.swnbidirectional ? gravcreate(2, 0, 1575, 0, 7, 285) : gravcreate(2, 1, 1560, 0, 7, 285);
+                        game.swnbidirectional ? gravcreate(0, 0, 1575, 0, 7, 284) : gravcreate(0, 1, 1560, 0, 7, 284);
+                        game.swnbidirectional ? gravcreate(1, 0, 1555, 0, 7, 283) : gravcreate(1, 1, 1540, 0, 7, 283);
+                        game.swnbidirectional ? gravcreate(3, 0, 1555, 0, 7, 282) : gravcreate(3, 1, 1540, 0, 7, 282);
+                        game.swnbidirectional ? gravcreate(5, 0, 1555, 0, 7, 281) : gravcreate(5, 1, 1540, 0, 7, 281);
+                        game.swnbidirectional ? gravcreate(4, 0, 1535, 0, 7, 280) : gravcreate(4, 1, 1520, 0, 7, 280);
+                        game.swnbidirectional ? gravcreate(2, 0, 1535, 0, 7, 279) : gravcreate(2, 1, 1520, 0, 7, 279);
+                        game.swnbidirectional ? gravcreate(0, 0, 1535, 0, 7, 278) : gravcreate(0, 1, 1520, 0, 7, 278);
+                        game.swnbidirectional ? gravcreate(5, 0, 1515, 0, 7, 277) : gravcreate(5, 1, 1500, 0, 7, 277);
+                        game.swnbidirectional ? gravcreate(3, 0, 1515, 0, 7, 276) : gravcreate(3, 1, 1500, 0, 7, 276);
+                        game.swnbidirectional ? gravcreate(1, 0, 1515, 0, 7, 275) : gravcreate(1, 1, 1500, 0, 7, 275);
+                        game.swnbidirectional ? gravcreate(5, 0, 1495, 0, 7, 257) : gravcreate(5, 1, 1480, 0, 7, 257);
+                        game.swnbidirectional ? gravcreate(4, 0, 1495, 0, 7, 256) : gravcreate(4, 1, 1480, 0, 7, 256);
+                        game.swnbidirectional ? gravcreate(0, 0, 1495, 0, 7, 255) : gravcreate(0, 1, 1480, 0, 7, 255);
+                        game.swnbidirectional ? gravcreate(1, 0, 1495, 0, 7, 254) : gravcreate(1, 1, 1480, 0, 7, 254);
+                        game.swnbidirectional ? gravcreate(2, 0, 1495, 0, 7, 253) : gravcreate(2, 1, 1480, 0, 7, 253);
+                        game.swnbidirectional ? gravcreate(3, 0, 1495, 0, 7, 252) : gravcreate(3, 1, 1480, 0, 7, 252);
+                        game.swnbidirectional ? gravcreate(2, 0, 865, 10, 7, 239) : gravcreate(2, 1, 850, 10, 7, 239);
+                        game.swnbidirectional ? gravcreate(2, 0, 845, 10, 7, 238) : gravcreate(2, 1, 830, 10, 7, 238);
+                        game.swnbidirectional ? gravcreate(2, 0, 825, 10, 7, 237) : gravcreate(2, 1, 810, 10, 7, 237);
+                        game.swnbidirectional ? gravcreate(2, 0, 805, 10, 7, 236) : gravcreate(2, 1, 790, 10, 7, 236);
+                        game.swnbidirectional ? gravcreate(0, 0, 1265, 0, 7, 229) : gravcreate(0, 1, 1250, 0, 7, 229);
+                        game.swnbidirectional ? gravcreate(5, 0, 1265, 0, 7, 228) : gravcreate(5, 1, 1250, 0, 7, 228);
+                        game.swnbidirectional ? gravcreate(2, 0, 1295, 0, 7, 227) : gravcreate(2, 1, 1280, 0, 7, 227);
+                        game.swnbidirectional ? gravcreate(3, 0, 1295, 0, 7, 226) : gravcreate(3, 1, 1280, 0, 7, 226);
+                        game.swnbidirectional ? gravcreate(2, 0, 1235, 0, 7, 225) : gravcreate(2, 1, 1220, 0, 7, 225);
+                        game.swnbidirectional ? gravcreate(3, 0, 1235, 0, 7, 224) : gravcreate(3, 1, 1220, 0, 7, 224);
+                        game.swnbidirectional ? gravcreate(5, 0, 1155, 0, 7, 223) : gravcreate(5, 1, 1140, 0, 7, 223);
+                        game.swnbidirectional ? gravcreate(5, 0, 1135, 0, 7, 221) : gravcreate(5, 1, 1120, 0, 7, 221);
+                        game.swnbidirectional ? gravcreate(5, 0, 1115, 0, 7, 220) : gravcreate(5, 1, 1100, 0, 7, 220);
+                        game.swnbidirectional ? gravcreate(0, 0, 1095, 0, 7, 219) : gravcreate(0, 1, 1080, 0, 7, 219);
+                        game.swnbidirectional ? gravcreate(0, 0, 1075, 0, 7, 218) : gravcreate(0, 1, 1060, 0, 7, 218);
+                        game.swnbidirectional ? gravcreate(0, 0, 1055, 0, 7, 217) : gravcreate(0, 1, 1040, 0, 7, 217);
+                        game.swnbidirectional ? gravcreate(5, 0, 1035, 0, 7, 216) : gravcreate(5, 1, 1020, 0, 7, 216);
+                        game.swnbidirectional ? gravcreate(5, 0, 1015, 0, 7, 215) : gravcreate(5, 1, 1000, 0, 7, 215);
+                        game.swnbidirectional ? gravcreate(5, 0, 995, 0, 7, 214) : gravcreate(5, 1, 980, 0, 7, 214);
+                        game.swnbidirectional ? gravcreate(0, 0, 975, 0, 7, 213) : gravcreate(0, 1, 960, 0, 7, 213);
+                        game.swnbidirectional ? gravcreate(0, 0, 935, 0, 7, 167) : gravcreate(0, 1, 920, 0, 7, 167);
+                        game.swnbidirectional ? gravcreate(0, 0, 955, 0, 7, 166) : gravcreate(0, 1, 940, 0, 7, 166);
+                        game.swnbidirectional ? gravcreate(0, 0, 15, 0, 7, 131) : gravcreate(0, 1, 0, 0, 7, 131);
+                        game.swnbidirectional ? gravcreate(1, 0, 15, 0, 7, 130) : gravcreate(1, 1, 0, 0, 7, 130);
+                        game.swnbidirectional ? gravcreate(3, 0, 15, 0, 7, 129) : gravcreate(3, 1, 0, 0, 7, 129);
+                        game.swnbidirectional ? gravcreate(2, 0, 35, 0, 7, 128) : gravcreate(2, 1, 20, 0, 7, 128);
+                        game.swnbidirectional ? gravcreate(1, 0, 55, 0, 7, 127) : gravcreate(1, 1, 40, 0, 7, 127);
+                        game.swnbidirectional ? gravcreate(0, 0, 75, 0, 7, 126) : gravcreate(0, 1, 60, 0, 7, 126);
+                        game.swnbidirectional ? gravcreate(5, 0, 235, 0, 7, 125) : gravcreate(5, 1, 220, 0, 7, 125);
+                        game.swnbidirectional ? gravcreate(4, 0, 235, 0, 7, 124) : gravcreate(4, 1, 220, 0, 7, 124);
+                        game.swnbidirectional ? gravcreate(3, 0, 235, 0, 7, 123) : gravcreate(3, 1, 220, 0, 7, 123);
+                        game.swnbidirectional ? gravcreate(2, 0, 515, 0, 7, 122) : gravcreate(2, 1, 500, 0, 7, 122);
+                        game.swnbidirectional ? gravcreate(3, 0, 515, 0, 7, 121) : gravcreate(3, 1, 500, 0, 7, 121);
+                        game.swnbidirectional ? gravcreate(4, 0, 715, 0, 7, 104) : gravcreate(4, 1, 700, 0, 7, 104);
+                        game.swnbidirectional ? gravcreate(3, 0, 735, 0, 7, 103) : gravcreate(3, 1, 720, 0, 7, 103);
+                        game.swnbidirectional ? gravcreate(2, 0, 735, 0, 7, 102) : gravcreate(2, 1, 720, 0, 7, 102);
+                        game.swnbidirectional ? gravcreate(1, 0, 715, 0, 7, 101) : gravcreate(1, 1, 700, 0, 7, 101);
+                        game.swnbidirectional ? gravcreate(0, 0, 595, 0, 7, 100) : gravcreate(0, 1, 580, 0, 7, 100);
+                        game.swnbidirectional ? gravcreate(5, 0, 595, 0, 7, 99) : gravcreate(5, 1, 580, 0, 7, 99);
+                        game.swnbidirectional ? gravcreate(1, 0, 595, 0, 7, 97) : gravcreate(1, 1, 580, 0, 7, 97);
+                        game.swnbidirectional ? gravcreate(4, 0, 595, 0, 7, 96) : gravcreate(4, 1, 580, 0, 7, 96);
+                        game.swnbidirectional ? gravcreate(2, 0, 495, 0, 7, 89) : gravcreate(2, 1, 480, 0, 7, 89);
+                        game.swnbidirectional ? gravcreate(3, 0, 495, 0, 7, 88) : gravcreate(3, 1, 480, 0, 7, 88);
+                        game.swnbidirectional ? gravcreate(0, 0, 415, 0, 7, 87) : gravcreate(0, 1, 400, 0, 7, 87);
+                        game.swnbidirectional ? gravcreate(1, 0, 415, 0, 7, 86) : gravcreate(1, 1, 400, 0, 7, 86);
+                        game.swnbidirectional ? gravcreate(4, 0, 415, 0, 7, 85) : gravcreate(4, 1, 400, 0, 7, 85);
+                        game.swnbidirectional ? gravcreate(5, 0, 415, 0, 7, 84) : gravcreate(5, 1, 400, 0, 7, 84);
+                        game.swnbidirectional ? gravcreate(2, 0, 695, 0, 7, 83) : gravcreate(2, 1, 680, 0, 7, 83);
+                        game.swnbidirectional ? gravcreate(3, 0, 695, 0, 7, 82) : gravcreate(3, 1, 680, 0, 7, 82);
+                        game.swnbidirectional ? gravcreate(3, 0, 335, 0, 7, 53) : gravcreate(3, 1, 320, 0, 7, 53);
+                        game.swnbidirectional ? gravcreate(5, 0, 55, 0, 7, 52) : gravcreate(5, 1, 40, 0, 7, 52);
+                        game.swnbidirectional ? gravcreate(4, 0, 75, 0, 7, 51) : gravcreate(4, 1, 60, 0, 7, 51);
+                        game.swnbidirectional ? gravcreate(3, 0, 95, 0, 7, 50) : gravcreate(3, 1, 80, 0, 7, 50);
+                        game.swnbidirectional ? gravcreate(2, 0, 315, 0, 7, 45) : gravcreate(2, 1, 300, 0, 7, 45);
+                        game.swnbidirectional ? gravcreate(1, 0, 295, 0, 7, 44) : gravcreate(1, 1, 280, 0, 7, 44);
+                        game.swnbidirectional ? gravcreate(0, 0, 275, 0, 7, 43) : gravcreate(0, 1, 260, 0, 7, 43);
+                        game.swnbidirectional ? gravcreate(5, 0, 295, 0, 7, 37) : gravcreate(5, 1, 280, 0, 7, 37);
+                        game.swnbidirectional ? gravcreate(4, 0, 275, 0, 7, 34) : gravcreate(4, 1, 260, 0, 7, 34);
+                        game.swnbidirectional ? gravcreate(3, 0, 255, 0, 7, 33) : gravcreate(3, 1, 240, 0, 7, 33);
+                        game.swnbidirectional ? gravcreate(2, 0, 235, 0, 7, 27) : gravcreate(2, 1, 220, 0, 7, 27);
+                        game.swnbidirectional ? gravcreate(3, 0, 175, 0, 7, 22) : gravcreate(3, 1, 160, 0, 7, 22);
+                        game.swnbidirectional ? gravcreate(2, 0, 175, 0, 7, 21) : gravcreate(2, 1, 160, 0, 7, 21);
+                        game.swnbidirectional ? gravcreate(1, 0, 175, 0, 7, 20) : gravcreate(1, 1, 160, 0, 7, 20);
+                        game.swnbidirectional ? gravcreate(0, 0, 175, 0, 7, 19) : gravcreate(0, 1, 160, 0, 7, 19);
+                        game.swnbidirectional ? gravcreate(5, 0, 115, 0, 7, 18) : gravcreate(5, 1, 100, 0, 7, 18);
+                        game.swnbidirectional ? gravcreate(4, 0, 115, 0, 7, 17) : gravcreate(4, 1, 100, 0, 7, 17);
+                        game.swnbidirectional ? gravcreate(3, 0, 115, 0, 7, 16) : gravcreate(3, 1, 100, 0, 7, 16);
+                        game.swnbidirectional ? gravcreate(2, 0, 115, 0, 7, 15) : gravcreate(2, 1, 100, 0, 7, 15);
+                        game.swnbidirectional ? gravcreate(2, 0, 15, 0, 7, 9) : gravcreate(2, 1, 0, 0, 7, 9);
+                        
+                        swnspeedchange(5);
+                    }
+
+                    if (game.swnstate2 < 375)
+                    {
+                        game.swnstate = 110;
+                        game.swndelay = 0;
+                    }
+                    else
+                    {
+                        swnreverse();
+
+                        game.swnstate = 0;
+                        game.swndelay = 360;
+                    }
+
+                    game.swnstate2++;
+                } break;
+                       
+                case 111: {     
+                    // Worms //
+                    // common //
+
+                    if (game.swnstate2 == 0)
+                    {
+                        game.swnbidirectional ? gravcreate(2, 0, 35, 0, 7, 2) : gravcreate(2, 1, 20, 0, 7, 2);
+                        game.swnbidirectional ? gravcreate(5, 0, 135, 0, 7, 2) : gravcreate(5, 1, 120, 0, 7, 2);
+                        game.swnbidirectional ? gravcreate(1, 0, 215, 0, 7, 2) : gravcreate(1, 1, 200, 0, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 315, 0, 7, 2) : gravcreate(3, 1, 300, 0, 7, 2);
+                        game.swnbidirectional ? gravcreate(3, 0, 335, 0, 7, 1) : gravcreate(3, 1, 320, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(3, 0, 295, 0, 7, 1) : gravcreate(3, 1, 280, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(1, 0, 235, 0, 7, 1) : gravcreate(1, 1, 220, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(1, 0, 195, 0, 7, 1) : gravcreate(1, 1, 180, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(5, 0, 155, 0, 7, 1) : gravcreate(5, 1, 140, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(5, 0, 115, 0, 7, 1) : gravcreate(5, 1, 100, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(2, 0, 15, 0, 7, 1) : gravcreate(2, 1, 0, 0, 7, 1);
+                        game.swnbidirectional ? gravcreate(2, 0, 55, 0, 7, 1) : gravcreate(2, 1, 40, 0, 7, 1);
+                    }
+
+                    if (game.swnstate2 < 120)
+                    {
+                        if (game.swnstate2 % 30 == 0)
+                        {
+                            swnmove(-20, 2);
+                        }
+                        else if (game.swnstate2 % 15 == 0)
+                        {
+                            swnmove(20, 2);
+                        }
+
+                        game.swnstate = 111;
+                    }
+                    else
+                    {
+                        game.swnstate = 0;
+                    }
+
+                    game.swnstate2++;
+                    game.swndelay = 0;
+                } break;
 
             }
         }
@@ -1395,6 +2413,7 @@ void entityclass::createentity(int xp, int yp, int t, int meta1, int meta2, int 
         entity.type = EntityType_GRAVITRON_ENEMY;
         entity.behave = meta1;
         entity.para = meta2;
+        entity.id = p1;
         entity.w = 16;
         entity.h = 16;
         entity.cx = 0;
@@ -2899,15 +3918,21 @@ bool entityclass::updateentities( int i )
             break;
         case EntityType_GRAVITRON_ENEMY:
             //swn game!
+
+            if ((game.swnstate == 0) && game.swndelay == 0)
+            {
+                entities[i].despawn = true;
+            }
+
             switch(entities[i].behave)
             {
             case 0:
                 // Right
                 if (entities[i].state == 0)   //Init
                 {
-                    entities[i].vx = entities[i].para * (game.swnfreeze ? 0 : 1);
+                    entities[i].vx = entities[i].para * (entities[i].freeze ? 0 : 1) * (entities[i].reverse ? -1 : 1);
                     
-                    if (entities[i].xp > 324 || game.swndelete == true || entities[i].para == -1000)
+                    if (entities[i].despawn && (entities[i].xp < -20 || entities[i].xp > 324))
                     {
                         return disableentity(i);
                     }
@@ -2918,9 +3943,9 @@ bool entityclass::updateentities( int i )
                 // Left
                 if (entities[i].state == 0)   //Init
                 {
-                    entities[i].vx = -entities[i].para * (game.swnfreeze ? 0 : 1);
+                    entities[i].vx = -entities[i].para * (entities[i].freeze ? 0 : 1) * (entities[i].reverse ? -1 : 1);
 
-                    if (entities[i].xp < -20 || game.swndelete == true || entities[i].para == -1000)
+                    if (entities[i].despawn && (entities[i].xp < -20 || entities[i].xp > 324))
                     {
                         return disableentity(i);
                     }
@@ -2931,9 +3956,7 @@ bool entityclass::updateentities( int i )
                 // Wall
                 if (entities[i].state == 0)   //Init
                 {
-                    entities[i].vy = -entities[i].para * (game.swnfreeze ? 0 : 1);
-
-                    if (game.swndelete == true || entities[i].para == -1000)
+                    if (entities[i].despawn)
                     {
                         return disableentity(i);
                     }
@@ -2944,37 +3967,45 @@ bool entityclass::updateentities( int i )
                 // Homing
                 if (entities[i].state == 0)   //Init
                 {
-                    if (entities[i].xp < entities[getplayer()].xp)
+                    if (entities[i].freeze)
                     {
-                        if (entities[i].vx != entities[i].para)
-                        {
-                            entities[i].vx++;
-                        }
+                        entities[i].vx = 0;
+                        entities[i].vy = 0;
                     }
                     else
                     {
-                        if (entities[i].vx != -entities[i].para)
+                        if (entities[i].xp < entities[getplayer()].xp)
                         {
-                            entities[i].vx--;
+                            if (entities[i].vx != entities[i].para * (entities[i].reverse ? -1 : 1))
+                            {
+                                entities[i].vx += (entities[i].reverse ? -1 : 1);
+                            }
+                        }
+                        else
+                        {
+                            if (entities[i].vx != -entities[i].para * (entities[i].reverse ? -1 : 1))
+                            {
+                                entities[i].vx -= (entities[i].reverse ? -1 : 1);
+                            }
+                        }
+
+                        if (entities[i].yp < entities[getplayer()].yp)
+                        {
+                            if (entities[i].vy != entities[i].para * (entities[i].reverse ? -1 : 1))
+                            {
+                                entities[i].vy += (entities[i].reverse ? -1 : 1);
+                            }
+                        }
+                        else
+                        {
+                            if (entities[i].vy != -entities[i].para * (entities[i].reverse ? -1 : 1))
+                            {
+                                entities[i].vy -= (entities[i].reverse ? -1 : 1);
+                            }
                         }
                     }
 
-                    if (entities[i].yp < entities[getplayer()].yp)
-                    {
-                        if (entities[i].vy != entities[i].para)
-                        {
-                            entities[i].vy++;
-                        }
-                    }
-                    else
-                    {
-                        if (entities[i].vy != -entities[i].para)
-                        {
-                            entities[i].vy--;
-                        }
-                    }
-
-                    if (entities[i].yp < 48 || entities[i].yp > 168 || game.swndelete == true || entities[i].para == -1000 || entities[i].timer - game.swntimer == 0)
+                    if (entities[i].timer - game.swntimer == 0)
                     {
                         return disableentity(i);
                     }

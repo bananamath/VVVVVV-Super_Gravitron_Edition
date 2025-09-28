@@ -61,7 +61,11 @@ public:
     float para;
     int life;
     int colour; // As out-of-bounds colours are allowed, this should be an int instead of an EnemyColour.
+    bool despawn;
+    int id;
     int timer;
+    bool freeze;
+    bool reverse;
 
     //Position and velocity
     int oldxp, oldyp;

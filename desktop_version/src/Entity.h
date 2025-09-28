@@ -48,7 +48,35 @@ public:
 
     void swnenemiescol(int t);
 
-    void gravcreate(int ypos, int dir, int xoff = 0, int yoff = 0, int speed = 7);
+    void gravcreate(int ypos, int dir, int xoff = 0, int yoff = 0, int speed = 7, int id = 0);
+    
+    void swnfreeze();
+    template <typename... Rest>
+    void swnfreeze(int id, Rest... rest);
+
+    void swnunfreeze();
+    template <typename... Rest>
+    void swnunfreeze(int id, Rest... rest);
+
+    void swnreverse();
+    template <typename... Rest>
+    void swnreverse(int id, Rest... rest);
+
+    void swnunreverse();
+    template <typename... Rest>
+    void swnunreverse(int id, Rest... rest);
+
+    void swndelete();
+    template <typename... Rest>
+    void swndelete(int id, Rest... rest);
+
+    void swnspeedchange(int speed);
+    template <typename... Rest>
+    void swnspeedchange(int speed, int id, Rest... rest);
+
+    void swnmove(int amount);
+    template <typename... Rest>
+    void swnmove(int amount, int id, Rest... rest);
 
     void generateswnwave(int t);
 

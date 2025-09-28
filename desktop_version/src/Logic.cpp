@@ -421,13 +421,18 @@ void gamelogic(void)
                 }
                 if (!entitygone) obj.entities[i].state = 4;
             }
-            else if (obj.entities[i].type == EntityType_GRAVITRON_ENEMY && game.swnmode && game.deathseq<15)
+            else if (obj.entities[i].type == EntityType_GRAVITRON_ENEMY && game.swnmode)
             {
-                //if playing SWN, get the enemies offscreen.
-                obj.entities[i].xp += obj.entities[i].vx*5;
-                obj.entities[i].yp += obj.entities[i].vy*5;
-
-                obj.entities[i].para = -1000;
+                if (game.deathseq < 5)
+                {
+                    obj.swndelete();
+                }
+                else if (game.deathseq < 15)
+                {
+                    //if playing SWN, get the enemies offscreen.
+                    obj.entities[i].xp += obj.entities[i].vx*5;
+                    obj.entities[i].yp += obj.entities[i].vy*5;
+                }
             }
         }
         if (game.swnmode)
@@ -451,14 +456,16 @@ void gamelogic(void)
                 game.swnstate10 = 0;
                 game.swndelay = 0;
 
-                if (game.swntimer > game.swnrecord && game.swnpractice == 0 && !map.custommode)
+                if (game.swntimer >= game.swnrecord && game.swnpractice == 0)
                 {
                     game.swnrecord = game.swntimer;
+
                     if (game.swnmessage == 0)
                     {
                         music.playef(Sound_NEWRECORD);
                         game.savestatsandsettings();
                     }
+
                     game.swnmessage = 1;
                 }
             }
@@ -584,12 +591,10 @@ void gamelogic(void)
                 break;
             case SWN_SUPERGRAVITRON:
                 game.swntimer += 1;
-                if (!map.custommode)
+
+                if (game.swntimer > game.swnrecord && game.swnpractice == 0)
                 {
-                    if (game.swntimer > game.swnrecord && game.swnpractice == 0)
-                    {
-                        game.swnrecord = game.swntimer;
-                    }
+                    game.swnrecord = game.swntimer;
                 }
 
                 obj.generateswnwave(1);

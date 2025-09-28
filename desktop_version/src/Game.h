@@ -414,11 +414,13 @@ public:
     //Sine Wave Ninja Minigame
     bool swnmode;
     enum SWNMODE swngame;
-    int swnstate, swnstate2, swnstate3, swnstate4, swndelay, swndeaths;
+    int swnstate, swnstate2, swnstate3, swnstate4, swnstate5, swnstate6, swnstate7, swnstate8, swnstate9, swnstate10;
+    int swndelay, swndeaths;
     int swntimer, swncolstate, swncoldelay;
     int swnrecord, swnbestrank, swnrank, swnmessage;
 
     int swnrand;
+    int swnbidirectional;
 
     struct swnpattern
     {
@@ -432,20 +434,21 @@ public:
     // ------------------------ EDIT THIS SECTION ------------------------ //
     
     // Certain characters may require a backslash (\) before them.
+
     std::string SuperGravitronModName = "Super Gravitron Edition";
     std::string Author = "bananamath";
-    static const int numpatterns = 1;
+    static const int numpatterns = 12;
     swnpattern swnpatterns[numpatterns] = {
         //common
-        
+        {"Hunted", 108, "common"}, {"Stars", 109, "common"}, {"Worms", 111, "common"}, 
         //standard
-        
+        {"Timing", 102, "standard"}, {"^v^", 100, "standard"}, 
         //unusual
-        
+        {"YaY", 105, "unusual"}, 
         //rare
-        
+        {"Cavern", 101, "rare"}, {"Conveyor", 104, "rare"}, 
         //exotic
-        
+        {"Sandwich Wrap", 103, "exotic"}, {"Red Light Green Light", 106, "exotic"}, {"Bug March", 107, "exotic"}, {"Doing Things The Side Way", 110, "exotic"}, 
     };
     int common = 34;
     int standard = 27;
@@ -453,7 +456,7 @@ public:
     int rare = 13;
     int exotic = 6;
 
-    // --------------------------------------------------------- //
+    // ------------------------------------------------------------------- //
 
 
 
@@ -471,8 +474,7 @@ public:
 
     std::string swnwallwarnings;
     int swnhomingtimer = -1;
-    bool swnfreeze = false;
-    bool swndelete = false;
+    bool swnranddelay;
 
     //SuperCrewMate Stuff
     bool supercrewmate, scmhurt;

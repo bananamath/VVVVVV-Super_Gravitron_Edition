@@ -205,9 +205,9 @@ static void menurender(void)
         font::print(PR_RIGHT, 264, temp+35, game.SuperGravitronModName, tr, tg, tb);
         font::print(PR_RIGHT, 264, temp+45, "by " + game.Author, tr, tg, tb);
         font::print(0, 10, 230, "Super Gravitron Mod by bananamath", tr / 2, tg / 2, tb / 2);
-#if defined(MAKEANDPLAY)
-        font::print(PR_RIGHT, 264, temp+35, loc::gettext("MAKE AND PLAY EDITION"), tr, tg, tb);
-#endif
+//#if defined(MAKEANDPLAY)
+//        font::print(PR_RIGHT, 264, temp+35, loc::gettext("MAKE AND PLAY EDITION"), tr, tg, tb);
+//#endif
 //#ifdef INTERIM_VERSION_EXISTS
 //        font::print(PR_RIGHT | PR_FONT_8X8, 310, 200, COMMIT_DATE, tr/2, tg/2, tb/2);
 //        font::print(PR_RIGHT | PR_FONT_8X8, 310, 210, INTERIM_COMMIT, tr/2, tg/2, tb/2);
@@ -239,7 +239,7 @@ static void menurender(void)
 
         if (left_msg != NULL)
         {
-            font::print(0, 10, 230, left_msg, tr/2, tg/2, tb/2);
+            font::print(0, 10, 220, left_msg, tr/2, tg/2, tb/2);
         }
         break;
     }
@@ -1239,91 +1239,89 @@ static void menurender(void)
         break;
     case Menu::accessibility:
     {
-#ifdef MAKEANDPLAY
- #define OFFSET 0
-#else
- #define OFFSET 1
-#endif
+
+        #define OFFSET 1
 
         switch (game.currentmenuoption)
         {
-#if !defined(MAKEANDPLAY)
-        case 0:
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Unlock Play Modes"), tr, tg, tb);
-            font::print_wrap(PR_CEN, -1, 65, loc::gettext("Unlock parts of the game normally unlocked as you progress."), tr, tg, tb);
-            break;
-#endif
-        case OFFSET+0:
-        {
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Invincibility"), tr, tg, tb);
-            int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Explore the game freely without dying. (Can cause glitches.)"), tr, tg, tb);
-            if (map.invincibility)
+            case 0:
             {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Invincibility is ON."), tr, tg, tb);
-            }
-            else
-            {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Invincibility is OFF."), tr / 2, tg / 2, tb / 2);
-            }
-            break;
-        }
-        case OFFSET+1:
-        {
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Slowdown"), tr, tg, tb);
-            int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Reduce the game speed."), tr, tg, tb);
-            drawslowdowntext(next_y);
-            break;
-        }
-        case OFFSET+2:
-        {
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Backgrounds"), tr, tg, tb);
-            int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disable animated backgrounds in menus and during gameplay."), tr, tg, tb);
-            if (!game.colourblindmode)
-            {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Backgrounds are ON."), tr, tg, tb);
-            }
-            else
-            {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Backgrounds are OFF."), tr / 2, tg / 2, tb / 2);
-            }
-            break;
-        }
-        case OFFSET+3:
-        {
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Screen Effects"), tr, tg, tb);
-            int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disables screen shakes and flashes."), tr, tg, tb);
-            if (!game.noflashingmode)
-            {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Screen Effects are ON."), tr, tg, tb);
-            }
-            else
-            {
-                font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Screen Effects are OFF."), tr / 2, tg / 2, tb / 2);
-            }
-            break;
-        }
-        case OFFSET+4:
-        {
-            const char* text;
-
-            font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Text Outline"), tr, tg, tb);
-            int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disables outline on game text."), tr, tg, tb);
-
-            graphics.fill_rect(0, next_y-4, 320, 16, tr, tg, tb);
-
-            if (!graphics.notextoutline)
-            {
-                text = loc::gettext("Text outlines are ON.");
-            }
-            else
-            {
-                text = loc::gettext("Text outlines are OFF.");
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Unlock Patterns"), tr, tg, tb);
+                font::print_wrap(PR_CEN, -1, 65, loc::gettext("Unlock all Super Gravitron patterns in the practice menu"), tr, tg, tb);
+                
+                break;
             }
 
-            font::print(PR_BOR | PR_CEN, -1, next_y, text, 255, 255, 255);
-            break;
-        }
+            case OFFSET+0:
+            {
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Invincibility"), tr, tg, tb);
+                int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Explore the game freely without dying. (Can cause glitches.)"), tr, tg, tb);
+                if (map.invincibility)
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Invincibility is ON."), tr, tg, tb);
+                }
+                else
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Invincibility is OFF."), tr / 2, tg / 2, tb / 2);
+                }
+                break;
+            }
+            case OFFSET+1:
+            {
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Slowdown"), tr, tg, tb);
+                int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Reduce the game speed."), tr, tg, tb);
+                drawslowdowntext(next_y);
+                break;
+            }
+            case OFFSET+2:
+            {
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Backgrounds"), tr, tg, tb);
+                int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disable animated backgrounds in menus and during gameplay."), tr, tg, tb);
+                if (!game.colourblindmode)
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Backgrounds are ON."), tr, tg, tb);
+                }
+                else
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Backgrounds are OFF."), tr / 2, tg / 2, tb / 2);
+                }
+                break;
+            }
+            case OFFSET+3:
+            {
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Screen Effects"), tr, tg, tb);
+                int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disables screen shakes and flashes."), tr, tg, tb);
+                if (!game.noflashingmode)
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Screen Effects are ON."), tr, tg, tb);
+                }
+                else
+                {
+                    font::print_wrap(PR_CEN, -1, next_y, loc::gettext("Screen Effects are OFF."), tr / 2, tg / 2, tb / 2);
+                }
+                break;
+            }
+            case OFFSET+4:
+            {
+                const char* text;
 
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Text Outline"), tr, tg, tb);
+                int next_y = font::print_wrap(PR_CEN, -1, 65, loc::gettext("Disables outline on game text."), tr, tg, tb);
+
+                graphics.fill_rect(0, next_y-4, 320, 16, tr, tg, tb);
+
+                if (!graphics.notextoutline)
+                {
+                    text = loc::gettext("Text outlines are ON.");
+                }
+                else
+                {
+                    text = loc::gettext("Text outlines are OFF.");
+                }
+
+                font::print(PR_BOR | PR_CEN, -1, next_y, text, 255, 255, 255);
+                break;
+            }
         }
         break;
 
@@ -1842,9 +1840,7 @@ static void menurender(void)
         font::print_wrap(PR_CEN, -1, 110, loc::gettext("If you want to keep exploring the game, select CONTINUE from the play menu."), tr, tg, tb);
         break;
     case Menu::unlockmenu:
-        font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Unlock Play Modes"), tr, tg, tb);
-
-        font::print_wrap(PR_CEN, -1, 65, loc::gettext("From here, you may unlock parts of the game that are normally unlocked as you play."), tr, tg, tb);
+        font::print_wrap(PR_CEN, -1, 100, loc::gettext("Are you sure you want to unlock all patterns?"), tr, tg, tb);
         break;
     case Menu::unlocktimetrial:
         font::print(PR_2X | PR_CEN, -1, 45, loc::gettext("Congratulations!"), tr, tg, tb);
@@ -1872,24 +1868,6 @@ static void menurender(void)
         font::print_wrap(PR_CEN, -1, 125, loc::gettext("You have unlocked the intermission levels."), tr, tg, tb);
         break;
     case Menu::practice:
-        if (game.editor_disabled)
-        {
-            if (game.currentmenuoption == 1)
-            {
-                if (SDL_GetHintBoolean("SteamDeck", SDL_FALSE))
-                {
-                    font::print_wrap(PR_CEN, -1, 180, loc::gettext("The level editor is not currently supported on Steam Deck, as it requires a keyboard and mouse to use."), tr, tg, tb);
-                }
-                else
-                {
-                    font::print_wrap(PR_CEN, -1, 180, loc::gettext("The level editor is not currently supported on this device, as it requires a keyboard and mouse to use."), tr, tg, tb);
-                }
-            }
-        }
-        else
-        {
-            //font::print_wrap(PR_CEN, -1, 180, loc::gettext("To install new player levels, copy the .vvvvvv files to the levels folder."), tr, tg, tb);
-        }
         break;
     case Menu::confirmshowlevelspath:
         font::print_wrap(PR_CEN, -1, 80, loc::gettext("Are you sure you want to show the levels path? This may reveal sensitive information if you are streaming."), tr, tg, tb);
